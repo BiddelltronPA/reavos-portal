@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REAVOS — AI Systems Grid</title>
+<style>
+:root{
+  --bg:#04050C; --bg2:rgba(10,12,24,.7); --panel:rgba(15,18,38,.5); --panel2:rgba(22,26,52,.55);
+  --line:rgba(255,110,199,.12); --line2:rgba(255,110,199,.28);
+  --txt:#F4EFF9; --dim:#9A93AD; --dim2:#5F5975;
+  --pink:#FF2DAF; --pink2:#FF6EC7; --violet:#C86BFF; --cyan:#4DE8FF;
+  --gold:#F5B95B; --green:#3DF0A8; --red:#FF6B81;
+  --grad:linear-gradient(135deg,#FF2DAF,#FF6EC7 55%,#C86BFF);
+  --radius:18px; --glass:blur(18px) saturate(1.3);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;overflow:hidden;height:100vh}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:
+  radial-gradient(1100px 600px at 85% -12%,rgba(255,45,175,.16),transparent 60%),
+  radial-gradient(900px 600px at -10% 112%,rgba(200,107,255,.14),transparent 60%),
+  radial-gradient(700px 450px at 50% 120%,rgba(77,232,255,.07),transparent 60%)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.4;background-image:
+  linear-gradient(rgba(255,110,199,.045) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,110,199,.045) 1px,transparent 1px);background-size:44px 44px;
+  mask-image:radial-gradient(ellipse at 50% 0%,black 25%,transparent 78%)}
+h1,h2,h3,h4{color:var(--txt)}
+button{color:var(--txt);font-family:inherit}
+svg.icn{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.12em}
+::-webkit-scrollbar{width:9px}::-webkit-scrollbar-thumb{background:rgba(255,110,199,.22);border-radius:99px}::-webkit-scrollbar-track{background:transparent}
+
+/* ============ BOOT SCREEN ============ */
+#boot{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .8s ease,visibility .8s}
+#boot.off{opacity:0;visibility:hidden}
+.boot-in{width:min(440px,90vw);text-align:center}
+.boot-mark{width:86px;height:86px;border-radius:24px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:38px;color:#14031B;margin:0 auto 22px;box-shadow:0 0 60px rgba(255,45,175,.6);animation:bootpulse 1.6s ease-in-out infinite}
+@keyframes bootpulse{50%{box-shadow:0 0 110px rgba(255,45,175,.95);transform:scale(1.04)}}
+.boot-word{font-size:26px;font-weight:800;letter-spacing:.28em;margin-bottom:4px}
+.boot-sub{font-size:9.5px;letter-spacing:.34em;color:var(--dim);margin-bottom:30px}
+.boot-log{font-family:ui-monospace,Menlo,monospace;font-size:11px;text-align:left;color:var(--dim);min-height:96px;margin-bottom:18px}
+.boot-log div{opacity:0;animation:logline .3s forwards}
+@keyframes logline{to{opacity:1}}
+.boot-log .ok{color:var(--green)}
+.boot-bar{height:4px;background:rgba(255,110,199,.1);border-radius:99px;overflow:hidden}
+.boot-bar i{display:block;height:100%;width:0;background:var(--grad);border-radius:99px;transition:width .4s ease}
+.boot-pct{font-size:10px;color:var(--dim2);margin-top:10px;letter-spacing:.2em}
+
+/* ============ ENGINE GRID ============ */
+#grid{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .7s ease,visibility .7s;background:rgba(4,5,12,.6);backdrop-filter:var(--glass)}
+#grid.on{opacity:1;visibility:visible}
+#grid.off{opacity:0;visibility:hidden}
+.grid-in{width:min(1060px,94vw)}
+.grid-head{text-align:center;margin-bottom:38px;animation:fade .8s ease}
+.grid-head .eyebrow{font-size:10px;letter-spacing:.4em;color:var(--pink2);font-weight:800;margin-bottom:12px}
+.grid-head h1{font-size:clamp(28px,4.5vw,44px);font-weight:800;letter-spacing:-.01em}
+.grid-head h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grid-head p{font-size:13px;color:var(--dim);margin-top:10px}
+.engines{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.engine{position:relative;border-radius:22px;padding:1.5px;border:1.5px solid transparent;cursor:pointer;transition:transform .25s;
+  background:linear-gradient(rgba(13,16,32,.6),rgba(13,16,32,.6)) padding-box,conic-gradient(from var(--ang,0deg),var(--ec),transparent 30%,var(--ec) 50%,transparent 80%,var(--ec)) border-box;animation:rot 8s linear infinite,rise .7s ease backwards}
+.engine:nth-child(1){animation-delay:0s,.05s}.engine:nth-child(2){animation-delay:0s,.15s}.engine:nth-child(3){animation-delay:0s,.25s}.engine:nth-child(4){animation-delay:0s,.35s}
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+.engine:hover{transform:translateY(-6px)}
+.engine-in{background:rgba(9,11,22,.72);backdrop-filter:var(--glass);border-radius:20px;padding:26px 24px;height:100%;min-height:230px;display:flex;flex-direction:column}
+.engine .eicon{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;background:color-mix(in srgb,var(--ec) 12%,transparent);border:1px solid color-mix(in srgb,var(--ec) 35%,transparent);color:var(--ec);box-shadow:0 0 24px -6px var(--ec)}
+.engine h3{font-size:15px;font-weight:800;letter-spacing:.1em;margin-bottom:8px}
+.engine p{font-size:11.5px;color:var(--dim);line-height:1.6;flex:1}
+.engine .est{margin-top:14px;display:flex;align-items:center;justify-content:space-between}
+.engine .st-pill{font-size:9px;font-weight:800;letter-spacing:.12em;padding:4px 10px;border-radius:99px}
+.st-live{color:var(--green);border:1px solid rgba(61,240,168,.4);background:rgba(61,240,168,.07)}
+.st-dev{color:var(--gold);border:1px solid rgba(245,185,91,.4);background:rgba(245,185,91,.07)}
+.engine .enter{font-size:10.5px;font-weight:800;letter-spacing:.1em;color:var(--ec)}
+.e-voice{--ec:#FF2DAF}.e-game{--ec:#4DE8FF}.e-mkt{--ec:#C86BFF}.e-ops{--ec:#F5B95B}
+.grid-foot{text-align:center;margin-top:30px;font-size:10.5px;color:var(--dim2);letter-spacing:.16em}
+@property --ang{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes rot{to{--ang:360deg}}
+
+/* ============ APP ============ */
+#app{display:flex;height:100vh;position:relative;z-index:1;opacity:0;transition:opacity .7s ease}
+#app.on{opacity:1}
+aside{width:252px;min-width:252px;background:rgba(8,9,20,.55);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:22px 14px;backdrop-filter:var(--glass);z-index:5}
+.logo{display:flex;align-items:center;gap:11px;padding:2px 10px 18px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.logo-mark{width:40px;height:40px;border-radius:12px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#14031B;box-shadow:0 0 28px rgba(255,45,175,.55)}
+.logo b{font-size:17px;letter-spacing:.06em}
+.logo span{display:block;font-size:9px;color:var(--dim);letter-spacing:.14em;font-weight:600}
+.back-grid{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--cyan);border:1px solid rgba(77,232,255,.25);cursor:pointer;margin-bottom:10px;transition:.2s;background:rgba(77,232,255,.04)}
+.back-grid:hover{background:rgba(77,232,255,.1)}
+.nav-label{font-size:9.5px;letter-spacing:.2em;padding:12px 12px 6px;font-weight:800}
+.nl-build{color:var(--pink)}.nl-test{color:var(--cyan)}.nl-opt{color:var(--violet)}.nl-ana{color:var(--gold)}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:var(--dim);cursor:pointer;font-size:13.5px;font-weight:500;transition:.18s;border:1px solid transparent;margin-bottom:2px}
+.nav-item:hover{color:var(--txt);background:rgba(255,110,199,.06)}
+.nav-item.active{color:var(--txt);background:linear-gradient(90deg,rgba(255,45,175,.16),rgba(200,107,255,.08));border-color:rgba(255,45,175,.3)}
+.nav-item .ic{width:20px;text-align:center;font-size:14px;display:flex;align-items:center;justify-content:center}
+.side-foot{margin-top:auto;padding:14px 12px;border-top:1px solid var(--line);font-size:11px;color:var(--dim2)}
+.pill{display:inline-flex;align-items:center;gap:6px;background:rgba(61,240,168,.07);border:1px solid rgba(61,240,168,.3);color:var(--green);padding:4px 10px;border-radius:99px;font-size:10px;font-weight:700;margin-bottom:6px}
+.pill.retell{background:rgba(77,232,255,.07);border-color:rgba(77,232,255,.3);color:var(--cyan)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.3}}
+
+main{flex:1;overflow-y:auto;padding:26px 36px 70px;position:relative}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.crumb{font-size:11px;color:var(--dim2);letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+h1.page{font-size:27px;font-weight:800;letter-spacing:-.015em;margin-top:4px;color:var(--txt)}
+h1.page .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.client-chip{display:flex;align-items:center;gap:10px;background:var(--panel);backdrop-filter:var(--glass);border:1px solid var(--line2);padding:8px 14px;border-radius:12px;font-size:13px}
+.client-chip .av{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#2A0F2E,#4A1E52);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--pink2)}
+.client-chip small{display:block;color:var(--dim2);font-size:10px}
+.view{display:none;animation:fade .35s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* Command deck */
+.loop-note{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--dim);margin:-6px 0 20px;max-width:720px;line-height:1.6}
+.loop-note .sync{font-size:15px;color:var(--pink2);animation:spin 6s linear infinite;display:inline-flex}
+@keyframes spin{to{transform:rotate(360deg)}}
+.deck{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.hub{position:relative;border-radius:22px;padding:1.5px;border:1.5px solid transparent;cursor:pointer;transition:transform .25s;
+  background:linear-gradient(rgba(13,16,32,.45),rgba(13,16,32,.45)) padding-box,conic-gradient(from var(--ang,0deg),var(--hub-c),transparent 30%,var(--hub-c) 50%,transparent 80%,var(--hub-c)) border-box;animation:rot 7s linear infinite}
+.hub:hover{transform:translateY(-4px) scale(1.008)}
+.hub-in{background:rgba(10,12,24,.6);backdrop-filter:var(--glass);border-radius:20px;padding:24px 26px;height:100%}
+.hub .fn{font-size:10px;letter-spacing:.28em;font-weight:800;display:flex;align-items:center;gap:9px;color:var(--hub-c)}
+.hub .fn .glyph{font-size:16px;display:inline-flex}
+.hub h2{font-size:22px;font-weight:800;margin:10px 0 6px;letter-spacing:-.01em}
+.hub p{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:14px}
+.hub .tools{display:flex;flex-wrap:wrap;gap:7px}
+.hub .tool{font-size:11px;font-weight:650;padding:6px 12px;border-radius:99px;border:1px solid var(--line2);color:var(--dim);transition:.18s;background:rgba(255,255,255,.02)}
+.hub .tool:hover{color:var(--txt);border-color:var(--hub-c);box-shadow:0 0 14px -4px var(--hub-c)}
+.hub .stat{position:absolute;top:22px;right:24px;text-align:right}
+.hub .stat b{font-size:20px;font-weight:800}
+.hub .stat small{display:block;font-size:9.5px;color:var(--dim2);letter-spacing:.06em}
+.hub-build{--hub-c:#FF2DAF}.hub-test{--hub-c:#4DE8FF}.hub-opt{--hub-c:#C86BFF}.hub-ana{--hub-c:#F5B95B}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.metric{background:var(--panel);backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:14px;padding:15px 18px;transition:.2s}
+.metric:hover{border-color:var(--line2)}
+.metric .num{font-size:25px;font-weight:800;letter-spacing:-.02em}
+.metric .lbl{font-size:10.5px;color:var(--dim);margin-top:2px;font-weight:500}
+.metric .delta{font-size:10px;color:var(--green);margin-top:4px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+.card{background:var(--panel);backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px}
+.card h3{font-size:14px;font-weight:750;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:9px;background:rgba(255,45,175,.12);color:var(--pink2);border:1px solid rgba(255,45,175,.3);padding:2px 9px;border-radius:99px;letter-spacing:.1em;font-weight:800}
+.tag.cy{background:rgba(77,232,255,.1);color:var(--cyan);border-color:rgba(77,232,255,.3)}
+.tag.gd{background:rgba(245,185,91,.1);color:var(--gold);border-color:rgba(245,185,91,.3)}
+.act{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;align-items:flex-start}
+.act:last-child{border:none}
+.act .t{color:var(--dim2);min-width:64px;font-size:10.5px;padding-top:1px}
+.act b{font-weight:650}
+.sugg{background:linear-gradient(135deg,rgba(200,107,255,.08),transparent);border:1px solid rgba(200,107,255,.22);border-radius:12px;padding:12px 15px;margin-bottom:10px;font-size:12.5px;display:flex;gap:10px;line-height:1.55}
+.sugg .ico{color:var(--violet)}
+
+/* Build grid */
+.ws-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:15px}
+.ws-btn{background:var(--panel);backdrop-filter:var(--glass);color:var(--txt);border:1px solid var(--line);border-radius:18px;padding:23px 22px;cursor:pointer;transition:.22s;position:relative;overflow:hidden;text-align:left}
+.ws-btn::before{content:"";position:absolute;inset:0;background:radial-gradient(320px 150px at 50% -20%,rgba(255,45,175,.22),transparent 70%);opacity:0;transition:.3s}
+.ws-btn:hover{border-color:rgba(255,45,175,.5);transform:translateY(-4px);box-shadow:0 16px 44px -14px rgba(255,45,175,.5)}
+.ws-btn:hover::before{opacity:1}
+.ws-btn .aicon{width:46px;height:46px;border-radius:13px;background:rgba(255,45,175,.1);border:1px solid rgba(255,45,175,.3);display:flex;align-items:center;justify-content:center;font-size:21px;color:var(--pink2);margin-bottom:13px}
+.ws-btn h4{font-size:15px;font-weight:750;margin-bottom:6px;color:var(--txt)}
+.ws-btn p{font-size:11.5px;color:var(--dim);line-height:1.55}
+.ws-btn .go{margin-top:13px;font-size:11px;font-weight:800;color:var(--pink2);letter-spacing:.08em;display:flex;align-items:center;gap:6px}
+.ws-btn .go::after{content:"→";transition:.2s}
+.ws-btn:hover .go::after{transform:translateX(4px)}
+.ws-btn .live{position:absolute;top:16px;right:16px;font-size:8.5px;font-weight:800;letter-spacing:.1em;color:var(--cyan);border:1px solid rgba(77,232,255,.35);padding:3px 8px;border-radius:99px;background:rgba(77,232,255,.06)}
+
+/* Gen overlay */
+#genOverlay{position:fixed;inset:0;background:rgba(3,4,10,.85);backdrop-filter:blur(20px);z-index:50;display:none;align-items:center;justify-content:center}
+#genOverlay.on{display:flex}
+.gen-box{width:min(560px,92vw);background:rgba(10,12,24,.85);backdrop-filter:var(--glass);border:1px solid var(--line2);border-radius:24px;padding:34px 36px;box-shadow:0 30px 100px -20px rgba(255,45,175,.35)}
+.gen-box h2{font-size:19px;margin-bottom:4px}
+.gen-box .sub{font-size:12.5px;color:var(--dim);margin-bottom:22px}
+.agent-row{display:flex;align-items:center;gap:13px;padding:8px 0;font-size:13px;color:var(--dim2);transition:.3s}
+.agent-row.run{color:var(--txt)}
+.agent-row.done{color:var(--dim)}
+.agent-row .st{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.agent-row.run .st{border-color:var(--pink);box-shadow:0 0 14px rgba(255,45,175,.6)}
+.agent-row.run .st::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--pink);animation:pulse 1s infinite}
+.agent-row.done .st{border-color:var(--green);background:rgba(61,240,168,.1);color:var(--green)}
+.agent-row.done .st::after{content:"✓"}
+.agent-row .who{font-weight:650;min-width:172px}
+.agent-row .msg{font-size:11.5px;color:var(--dim2)}
+.gen-bar{height:5px;background:rgba(255,110,199,.1);border-radius:99px;margin-top:20px;overflow:hidden}
+.gen-bar i{display:block;height:100%;width:0;background:var(--grad);border-radius:99px;transition:width .5s ease}
+
+/* Output */
+.out-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:18px}
+.score-wrap{display:flex;align-items:center;gap:14px}
+.ring{width:74px;height:74px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px}
+.score-wrap .cap{font-size:11px;color:var(--dim);max-width:160px;line-height:1.5}
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 15px;border-radius:10px;font-size:12px;font-weight:650;color:var(--dim);cursor:pointer;border:1px solid var(--line);transition:.18s;background:transparent}
+.tab.active{color:var(--txt);background:linear-gradient(90deg,rgba(255,45,175,.18),rgba(200,107,255,.1));border-color:rgba(255,45,175,.4)}
+.tab.retell{border-color:rgba(77,232,255,.3);color:var(--cyan)}
+.tab.retell.active{background:rgba(77,232,255,.1);border-color:var(--cyan);color:var(--cyan)}
+.prompt-box{background:rgba(7,8,18,.75);backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:14px;padding:22px 24px;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12px;line-height:1.75;white-space:pre-wrap;color:#D9CBE8;max-height:50vh;overflow-y:auto}
+.prompt-box .hl{color:var(--pink2);font-weight:700}
+.prompt-box .cy{color:var(--cyan)}
+.copy-btn{background:var(--grad);color:#14031B;border:none;padding:10px 20px;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;transition:.2s;letter-spacing:.02em}
+.copy-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px -8px rgba(255,45,175,.7)}
+.cyan-btn{background:linear-gradient(135deg,#4DE8FF,#38B6FF);color:#03141B;border:none;padding:10px 20px;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;transition:.2s}
+.cyan-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px -8px rgba(77,232,255,.7)}
+.ghost-btn{background:transparent;border:1px solid var(--line2);color:var(--dim);padding:10px 18px;border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s}
+.ghost-btn:hover{color:var(--txt);border-color:var(--pink)}
+
+/* Test */
+.sim-grid{display:grid;grid-template-columns:1fr 340px;gap:16px}
+.sim-pick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.sim-chip{padding:8px 15px;border-radius:99px;border:1px solid var(--line2);font-size:12px;color:var(--dim);cursor:pointer;font-weight:650;transition:.18s;background:transparent;display:inline-flex;align-items:center;gap:7px}
+.sim-chip.on{color:#03141B;background:linear-gradient(135deg,#4DE8FF,#38B6FF);border-color:transparent}
+.call-window{background:rgba(7,8,18,.7);backdrop-filter:var(--glass);border:1px solid rgba(77,232,255,.2);border-radius:16px;padding:20px;min-height:380px;max-height:56vh;overflow-y:auto}
+.bubble{max-width:78%;padding:11px 15px;border-radius:14px;font-size:12.5px;line-height:1.55;margin-bottom:11px;animation:pop .3s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.bubble.caller{background:rgba(255,255,255,.05);border:1px solid var(--line);margin-right:auto}
+.bubble.ai{background:linear-gradient(135deg,rgba(255,45,175,.15),rgba(200,107,255,.1));border:1px solid rgba(255,45,175,.3);margin-left:auto}
+.bubble .who{font-size:9px;font-weight:800;letter-spacing:.12em;color:var(--dim2);display:block;margin-bottom:4px}
+.bubble.ai .who{color:var(--pink2)}
+.anno{font-size:10.5px;color:var(--cyan);border-left:2px solid var(--cyan);padding:3px 10px;margin:0 0 11px 6px;opacity:.85;animation:pop .3s ease}
+.sim-side .card{margin-bottom:14px}
+.kv{display:flex;justify-content:space-between;font-size:12px;padding:7px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border:none}
+.kv span{color:var(--dim)}
+.kv b{font-weight:700}
+.kv b.g{color:var(--green)}.kv b.c{color:var(--cyan)}
+
+/* Optimise */
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+textarea{width:100%;min-height:260px;background:rgba(7,8,18,.7);border:1px solid var(--line2);border-radius:13px;padding:16px;color:var(--txt);font-size:12.5px;font-family:ui-monospace,Menlo,monospace;line-height:1.6;outline:none;resize:vertical}
+textarea:focus{border-color:var(--pink)}
+.crit{margin-bottom:12px}
+.crit .row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.crit .row b{font-weight:600}
+.crit .row span{color:var(--dim);font-weight:700}
+.crit .bar{height:6px;background:rgba(255,110,199,.08);border-radius:99px;overflow:hidden}
+.crit .bar i{display:block;height:100%;width:0;border-radius:99px;background:var(--grad);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+
+/* Analyse */
+.ana-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+.bars{display:flex;align-items:flex-end;gap:7px;height:160px;padding-top:10px}
+.bars .b{flex:1;background:linear-gradient(180deg,var(--pink),rgba(255,45,175,.12));border-radius:6px 6px 3px 3px;position:relative;min-height:6px;transition:height 1s cubic-bezier(.2,.8,.2,1);cursor:default}
+.bars .b:hover{filter:brightness(1.35)}
+.bars .b em{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--dim);font-style:normal;font-weight:700;opacity:0;transition:.2s}
+.bars .b:hover em{opacity:1}
+.bar-lbls{display:flex;gap:7px;margin-top:7px}
+.bar-lbls span{flex:1;text-align:center;font-size:8.5px;color:var(--dim2)}
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.legend{font-size:11.5px;line-height:2.1;color:var(--dim)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:8px}
+.lead{width:100%;border-collapse:collapse;font-size:12px}
+.lead th{text-align:left;font-size:9.5px;letter-spacing:.12em;color:var(--dim2);padding:8px 10px;border-bottom:1px solid var(--line2);font-weight:800}
+.lead td{padding:10px;border-bottom:1px solid var(--line)}
+.lead tr:last-child td{border:none}
+.lead .up{color:var(--green);font-weight:700}
+.mini-bar{height:5px;width:90px;background:rgba(255,110,199,.1);border-radius:99px;overflow:hidden;display:inline-block;vertical-align:middle}
+.mini-bar i{display:block;height:100%;background:var(--grad);border-radius:99px}
+
+/* Knowledge / library */
+.kn-tools{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.kn-search{flex:1;min-width:220px;background:var(--panel);backdrop-filter:var(--glass);border:1px solid var(--line2);border-radius:11px;padding:10px 16px;color:var(--txt);font-size:13px;outline:none}
+.kn-search:focus{border-color:var(--pink)}
+.chip{padding:7px 14px;border-radius:99px;border:1px solid var(--line2);font-size:11.5px;color:var(--dim);cursor:pointer;transition:.18s;background:transparent;font-weight:650}
+.chip.on{color:#14031B;background:var(--grad);border-color:transparent}
+.kn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.kn-doc{background:var(--panel);backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:13px;padding:15px 17px;display:flex;gap:13px;transition:.2s}
+.kn-doc:hover{border-color:var(--line2);transform:translateY(-2px)}
+.kn-doc .fic{width:36px;height:36px;border-radius:9px;background:rgba(255,45,175,.08);border:1px solid rgba(255,45,175,.25);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--pink2);flex-shrink:0}
+.kn-doc b{font-size:12.5px;display:block;line-height:1.4}
+.kn-doc small{font-size:10.5px;color:var(--dim2);display:block;margin-top:4px}
+.kn-doc .ok{font-size:9.5px;color:var(--green);font-weight:800;margin-top:5px;display:inline-block}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:13px}
+.lib-card{background:var(--panel);backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:13px;padding:16px 18px;cursor:pointer;transition:.2s}
+.lib-card:hover{border-color:rgba(255,45,175,.45);transform:translateY(-2px)}
+.lib-card .cat{font-size:9px;letter-spacing:.12em;color:var(--pink2);font-weight:800;text-transform:uppercase}
+.lib-card b{display:block;font-size:13px;margin:7px 0 6px}
+.lib-card p{font-size:11.5px;color:var(--dim);line-height:1.5}
+.lib-card .meta{margin-top:10px;font-size:10px;color:var(--dim2);display:flex;gap:12px}
+
+/* QA */
+.qa-row{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
+.qa-row:last-child{border:none}
+.qa-badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:99px;letter-spacing:.05em}
+.qa-pass{background:rgba(61,240,168,.1);color:var(--green);border:1px solid rgba(61,240,168,.3)}
+.qa-warn{background:rgba(245,185,91,.1);color:var(--gold);border:1px solid rgba(245,185,91,.3)}
+.qa-row .d{font-size:11px;color:var(--dim2);margin-left:auto}
+
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(22,26,52,.9);backdrop-filter:var(--glass);border:1px solid rgba(61,240,168,.4);color:var(--txt);padding:12px 22px;border-radius:12px;font-size:13px;font-weight:650;transition:.35s;z-index:110;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+.toast.on{transform:translateX(-50%) translateY(0)}
+@media(max-width:980px){.deck,.grid2,.opt-grid,.sim-grid,.ana-grid{grid-template-columns:1fr}aside{width:70px;min-width:70px}.logo b,.logo span,.nav-item .txt,.nav-label,.side-foot,.back-grid span{display:none}}
+
+/* ============ AURORA BACKDROP ============ */
+#aurora{position:fixed;inset:0;pointer-events:none;z-index:0;filter:blur(90px);opacity:.5}
+#aurora i{position:absolute;border-radius:50%}
+#aurora i:nth-child(1){width:540px;height:540px;background:radial-gradient(circle,rgba(255,45,175,.5),transparent 70%);top:-170px;left:55%;animation:dr1 18s ease-in-out infinite alternate}
+#aurora i:nth-child(2){width:480px;height:480px;background:radial-gradient(circle,rgba(200,107,255,.45),transparent 70%);bottom:-150px;left:-130px;animation:dr2 23s ease-in-out infinite alternate}
+#aurora i:nth-child(3){width:400px;height:400px;background:radial-gradient(circle,rgba(77,232,255,.35),transparent 70%);bottom:-110px;right:-90px;animation:dr3 27s ease-in-out infinite alternate}
+@keyframes dr1{to{transform:translate(-150px,130px) scale(1.15)}}
+@keyframes dr2{to{transform:translate(170px,-100px) scale(1.1)}}
+@keyframes dr3{to{transform:translate(-130px,-150px)}}
+
+/* ============ GLASS SHEEN ============ */
+.card,.metric,.ws-btn,.kn-doc,.lib-card,.client-chip,.gen-box,.engine-in,.hub-in{box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 12px 44px -20px rgba(0,0,0,.65)}
+.hub-in,.engine-in{position:relative;overflow:hidden}
+.hub-in::after,.engine-in::after{content:"";position:absolute;top:0;left:-85%;width:55%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.08),transparent);transform:skewX(-18deg);transition:left .65s ease;pointer-events:none}
+.hub:hover .hub-in::after,.engine:hover .engine-in::after{left:135%}
+.ws-btn::after{content:"";position:absolute;top:0;left:-85%;width:50%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.06),transparent);transform:skewX(-18deg);transition:left .55s ease;pointer-events:none}
+.ws-btn:hover::after{left:140%}
+
+/* ============ FLOATING CONTROL DOCK ============ */
+#dock{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;align-items:center;gap:6px;padding:7px;border-radius:20px;border:1.5px solid transparent;
+  background:linear-gradient(rgba(10,12,24,.72),rgba(10,12,24,.72)) padding-box,conic-gradient(from var(--ang,0deg),#FF2DAF,transparent 30%,#4DE8FF 50%,transparent 80%,#FF2DAF) border-box;
+  backdrop-filter:var(--glass);box-shadow:0 14px 44px -14px rgba(255,45,175,.5);animation:rot 9s linear infinite,dockin 1s cubic-bezier(.2,.9,.3,1.2) .4s backwards}
+@keyframes dockin{from{opacity:0;transform:translateY(60px) scale(.8)}to{opacity:1;transform:none}}
+#dock button{display:flex;align-items:center;gap:8px;padding:11px 16px;border-radius:14px;border:1px solid transparent;background:transparent;cursor:pointer;color:var(--txt);font-weight:800;font-size:12px;letter-spacing:.06em;transition:.22s}
+#dock button:hover{background:rgba(255,45,175,.12);border-color:rgba(255,45,175,.4);box-shadow:0 0 20px -6px var(--pink);transform:translateY(-2px)}
+#dock #langToggle:hover{background:rgba(77,232,255,.12);border-color:rgba(77,232,255,.4);box-shadow:0 0 20px -6px var(--cyan)}
+#dock .dk-sep{width:1px;height:22px;background:var(--line2)}
+body.light #dock{background:linear-gradient(rgba(255,255,255,.78),rgba(255,255,255,.78)) padding-box,conic-gradient(from var(--ang,0deg),#FF2DAF,transparent 30%,#4DE8FF 50%,transparent 80%,#FF2DAF) border-box;box-shadow:0 14px 44px -14px rgba(90,40,130,.4)}
+
+/* ============ LIGHT / WHITE GLASS MODE ============ */
+body.light{--bg:#EFEDF7;--bg2:rgba(255,255,255,.72);--panel:rgba(255,255,255,.52);--panel2:rgba(255,255,255,.66);--line:rgba(120,60,150,.13);--line2:rgba(214,24,127,.28);--txt:#1C1032;--dim:#5A5472;--dim2:#8F89A4;--glass:blur(24px) saturate(1.45)}
+body.light::before{background:radial-gradient(1100px 600px at 85% -12%,rgba(255,45,175,.15),transparent 60%),radial-gradient(900px 600px at -10% 112%,rgba(200,107,255,.14),transparent 60%),radial-gradient(700px 450px at 50% 120%,rgba(77,232,255,.12),transparent 60%)}
+body.light::after{opacity:.55;background-image:linear-gradient(rgba(120,60,160,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(120,60,160,.055) 1px,transparent 1px)}
+body.light #aurora{opacity:.6}
+body.light aside{background:rgba(255,255,255,.48)}
+body.light #grid{background:rgba(240,238,248,.5)}
+body.light .engine-in{background:rgba(255,255,255,.62)}
+body.light .hub-in{background:rgba(255,255,255,.6)}
+body.light .gen-box{background:rgba(255,255,255,.8)}
+body.light #genOverlay{background:rgba(235,232,245,.65)}
+body.light .prompt-box,body.light .call-window,body.light textarea{background:rgba(255,255,255,.62);color:#3A2355}
+body.light .prompt-box .hl{color:#D6187F}
+body.light .prompt-box .cy{color:#0B8FAD}
+body.light .anno{color:#0B8FAD;border-color:#0B8FAD}
+body.light .bubble.caller{background:rgba(28,16,50,.05);border-color:rgba(28,16,50,.12)}
+body.light .bubble.ai{background:linear-gradient(135deg,rgba(255,45,175,.1),rgba(200,107,255,.08))}
+body.light .toast{background:rgba(255,255,255,.9);color:#1C1032}
+body.light .tool{background:rgba(28,16,50,.03)}
+body.light .metric:hover,body.light .card{border-color:var(--line)}
+body.light .card,body.light .metric,body.light .ws-btn,body.light .kn-doc,body.light .lib-card,body.light .client-chip,body.light .gen-box,body.light .engine-in,body.light .hub-in{box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 14px 40px -20px rgba(90,40,130,.3)}
+body.light .hub-in::after,body.light .engine-in::after,body.light .ws-btn::after{background:linear-gradient(105deg,transparent,rgba(255,255,255,.5),transparent)}
+body.light .bars .b{background:linear-gradient(180deg,#FF2DAF,rgba(255,45,175,.3))}
+body.light .sugg{background:linear-gradient(135deg,rgba(200,107,255,.12),transparent)}
+body.light .boot-log{color:#5A5472}
+body.light .st-live{background:rgba(20,160,110,.08);color:#0E9A6C;border-color:rgba(14,154,108,.35)}
+body.light .pill{background:rgba(14,154,108,.07);color:#0E9A6C;border-color:rgba(14,154,108,.3)}
+body.light .pill.retell{background:rgba(11,143,173,.07);color:#0B8FAD;border-color:rgba(11,143,173,.3)}
+body.light .qa-pass{background:rgba(14,154,108,.08);color:#0E9A6C;border-color:rgba(14,154,108,.3)}
+body.light .delta,body.light .kv b.g,body.light .kn-doc .ok,body.light .lead .up{color:#0E9A6C}
+body.light .kv b.c,body.light .tag.cy,body.light .live{color:#0B8FAD}
+body.light .tag.cy,body.light .live{background:rgba(11,143,173,.07);border-color:rgba(11,143,173,.3)}
+
+/* ============ WIPE TRANSITION ============ */
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-new(root){clip-path:circle(0% at calc(100% - 45px) calc(100% - 45px));animation:wipe .75s cubic-bezier(.3,.7,.2,1) forwards}
+@keyframes wipe{to{clip-path:circle(160% at calc(100% - 45px) calc(100% - 45px))}}
+#flash{position:fixed;inset:0;z-index:130;pointer-events:none;background:var(--grad);opacity:0;transition:opacity .3s}
+#flash.on{opacity:.35}
+
+/* ============ MANGA TRANSITION FX ============ */
+#manga{position:fixed;inset:0;z-index:300;pointer-events:none;opacity:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff}
+#manga .mg-lines{position:absolute;inset:-30%;background:repeating-conic-gradient(from 0deg,rgba(0,0,0,.92) 0deg 1.5deg,transparent 1.5deg 6.5deg);-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 16%,black 44%);mask-image:radial-gradient(circle at 50% 50%,transparent 16%,black 44%)}
+#manga .mg-dots{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(0,0,0,.5) 1.4px,transparent 1.6px);background-size:13px 13px;-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 32%,black 78%);mask-image:radial-gradient(circle at 50% 50%,transparent 32%,black 78%)}
+#manga .mg-flash{position:absolute;inset:0;background:#fff}
+#manga .mg-burst{position:relative;width:min(360px,80vw);aspect-ratio:1;background:#fff;display:flex;align-items:center;justify-content:center;filter:drop-shadow(7px 7px 0 #000);
+  clip-path:polygon(100% 50%,75.1% 56.7%,93.3% 75%,68.4% 68.4%,75% 93.3%,56.7% 75.1%,50% 100%,43.3% 75.1%,25% 93.3%,31.6% 68.4%,6.7% 75%,24.9% 56.7%,0% 50%,24.9% 43.3%,6.7% 25%,31.6% 31.6%,25% 6.7%,43.3% 24.9%,50% 0%,56.7% 24.9%,75% 6.7%,68.4% 31.6%,93.3% 25%,75.1% 43.3%)}
+#manga .mg-word{font-size:clamp(38px,7vw,64px);font-weight:900;font-style:italic;color:#000;transform:rotate(-7deg);letter-spacing:.02em;text-align:center;line-height:1}
+#manga.go{animation:mgShow .9s ease forwards}
+@keyframes mgShow{0%{opacity:1}80%{opacity:1}100%{opacity:0}}
+#manga.go .mg-lines{animation:mgZoom .9s ease}
+@keyframes mgZoom{0%{transform:scale(1.3) rotate(0deg)}100%{transform:scale(1) rotate(9deg)}}
+#manga.go .mg-dots{animation:mgDots .9s ease}
+@keyframes mgDots{0%{transform:scale(1.15)}100%{transform:scale(1)}}
+#manga.go .mg-burst{animation:mgPop .9s cubic-bezier(.2,1.5,.3,1)}
+@keyframes mgPop{0%{transform:scale(0) rotate(-25deg)}50%{transform:scale(1.12) rotate(4deg)}70%{transform:scale(.96) rotate(-2deg)}100%{transform:scale(1) rotate(0)}}
+#manga.go .mg-flash{animation:mgFlash .9s ease}
+@keyframes mgFlash{0%{opacity:1}25%{opacity:0}100%{opacity:0}}
+
+/* ============ NEXT-GEN GLASS POLISH ============ */
+body{background:radial-gradient(130% 130% at 72% -12%,#0D0720 0%,#04050C 58%)}
+:root{--glass:blur(28px) saturate(1.55)}
+.card,.metric,.ws-btn,.kn-doc,.lib-card,.client-chip{background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.015) 38%,rgba(15,18,38,.4))}
+.hub-in,.engine-in{background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(10,12,24,.58) 45%)}
+.grad{background-size:200% auto !important;animation:shimmer 5s linear infinite}
+@keyframes shimmer{to{background-position:200% center}}
+.metric:hover,.card:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 18px 50px -20px rgba(255,45,175,.35)}
+.logo-mark,.boot-mark{background:var(--grad);background-size:200% auto;animation:shimmerbg 4s linear infinite,breathe 4s ease-in-out infinite}
+@keyframes shimmerbg{to{background-position:200% center}}
+.copy-btn,.cyan-btn{background-size:200% auto;transition:.25s,background-position .5s}
+.copy-btn:hover,.cyan-btn:hover{background-position:100% center}
+.nav-item.active{box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 18px -8px rgba(255,45,175,.5)}
+.prompt-box,.call-window,textarea{box-shadow:inset 0 2px 18px rgba(0,0,0,.35)}
+
+/* sexy light mode */
+body.light{background:radial-gradient(130% 130% at 72% -12%,#FDFCFF 0%,#EDE9F8 60%,#E7E1F4 100%)}
+body.light .card,body.light .metric,body.light .ws-btn,body.light .kn-doc,body.light .lib-card,body.light .client-chip{background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(255,255,255,.42) 60%)}
+body.light .hub-in,body.light .engine-in{background:linear-gradient(160deg,rgba(255,255,255,.88),rgba(255,255,255,.5) 55%)}
+body.light .metric:hover,body.light .card:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 18px 50px -20px rgba(214,24,127,.3)}
+body.light .prompt-box,body.light .call-window,body.light textarea{box-shadow:inset 0 2px 14px rgba(90,40,130,.08)}
+body.light #aurora{opacity:.75;filter:blur(100px)}
+body.light .nav-item.active{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 18px -8px rgba(214,24,127,.35)}
+
+/* ============ USER SELECT ============ */
+#users{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .6s ease,visibility .6s;background:rgba(4,5,12,.6);backdrop-filter:var(--glass)}
+#users.on{opacity:1;visibility:visible}
+body.light #users{background:rgba(240,238,248,.55)}
+.users-in{text-align:center}
+.users-in .eyebrow{font-size:10px;letter-spacing:.4em;color:var(--pink2);font-weight:800;margin-bottom:12px}
+.users-in h1{font-size:clamp(26px,4vw,40px);font-weight:800;margin-bottom:6px}
+.users-in h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.users-in p{font-size:12.5px;color:var(--dim);margin-bottom:36px}
+.user-row{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
+.user-card{cursor:pointer;transition:.25s;animation:rise .6s ease backwards}
+.user-card:nth-child(1){animation-delay:.05s}.user-card:nth-child(2){animation-delay:.15s}.user-card:nth-child(3){animation-delay:.25s}.user-card:nth-child(4){animation-delay:.35s}
+.user-card .uav{width:96px;height:96px;border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:800;color:#14031B;margin:0 auto 14px;border:2px solid transparent;transition:.25s;box-shadow:0 14px 40px -14px var(--uc)}
+.user-card:hover{transform:translateY(-6px)}
+.user-card:hover .uav{box-shadow:0 0 44px -6px var(--uc);border-color:rgba(255,255,255,.5)}
+.user-card b{font-size:14px;font-weight:750;letter-spacing:.04em}
+.user-card small{display:block;font-size:10px;color:var(--dim2);margin-top:4px;letter-spacing:.08em}
+.u-helen{--uc:#FF2DAF}.u-helen .uav{background:linear-gradient(135deg,#FF2DAF,#FF6EC7)}
+.u-brendan{--uc:#4DE8FF}.u-brendan .uav{background:linear-gradient(135deg,#4DE8FF,#38B6FF)}
+.u-david{--uc:#C86BFF}.u-david .uav{background:linear-gradient(135deg,#C86BFF,#9D5CFF)}
+.u-lex{--uc:#F5B95B}.u-lex .uav{background:linear-gradient(135deg,#F5B95B,#F59E0B)}
+#userBtn{width:40px;height:40px;border-radius:13px !important;padding:0 !important;justify-content:center;font-size:15px !important;background:var(--grad) !important;color:#14031B !important;border:none !important}
+#userBtn:hover{box-shadow:0 0 22px -4px var(--pink) !important}
+
+/* ============ CLIENT DASHBOARDS ============ */
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:13px}
+.cl-card{background:var(--panel);backdrop-filter:var(--glass);border:1px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer;transition:.2s;position:relative}
+.cl-card:hover{border-color:rgba(255,45,175,.45);transform:translateY(-3px)}
+.cl-card .cav{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#14031B;margin-bottom:10px;background:linear-gradient(135deg,var(--c1,#FF6EC7),var(--c2,#C86BFF))}
+.cl-card b{font-size:13px;display:block}
+.cl-card small{font-size:10.5px;color:var(--dim2);display:block;margin-top:3px}
+.cl-card .cstats{display:flex;gap:14px;margin-top:10px;font-size:10.5px;color:var(--dim)}
+.cl-card .cstats b{display:inline;font-size:11.5px}
+.cl-pill{position:absolute;top:14px;right:14px;font-size:8.5px;font-weight:800;letter-spacing:.1em;padding:3px 9px;border-radius:99px}
+.cp-live{color:var(--green);border:1px solid rgba(61,240,168,.4);background:rgba(61,240,168,.07)}
+.cp-trial{color:var(--gold);border:1px solid rgba(245,185,91,.4);background:rgba(245,185,91,.07)}
+.cp-onb{color:var(--violet);border:1px solid rgba(200,107,255,.4);background:rgba(200,107,255,.07)}
+.cl-card.real{border:1.5px solid rgba(77,232,255,.5);box-shadow:0 0 34px -10px rgba(77,232,255,.5)}
+.cl-card.real:hover{border-color:var(--cyan)}
+.cl-card.real .cav{background:linear-gradient(135deg,#4DE8FF,#38B6FF)}
+/* Marvian portal */
+.mv-note{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(135deg,rgba(77,232,255,.08),transparent);border:1px solid rgba(77,232,255,.25);border-radius:13px;padding:13px 16px;font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:18px;max-width:820px}
+.mv-note svg{color:var(--cyan);flex-shrink:0;margin-top:2px}
+.mv-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mv-win{background:rgba(7,8,18,.7);border:1px solid rgba(77,232,255,.2);border-radius:13px;padding:15px;min-height:150px;max-height:240px;overflow-y:auto;margin-top:12px}
+body.light .mv-win{background:rgba(255,255,255,.62)}
+.mv-drop{border:1.5px dashed rgba(77,232,255,.45);border-radius:13px;padding:22px;text-align:center;font-size:12px;color:var(--dim);cursor:pointer;transition:.2s;margin-bottom:14px}
+.mv-drop:hover{background:rgba(77,232,255,.06);border-color:var(--cyan)}
+.mv-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12px}
+.mv-item:last-child{border:none}
+.mv-item .st-chip{margin-left:auto;font-size:8.5px;font-weight:800;letter-spacing:.08em;padding:3px 9px;border-radius:99px}
+.sc-pend{color:var(--gold);border:1px solid rgba(245,185,91,.4);background:rgba(245,185,91,.07)}
+.sc-idx{color:var(--green);border:1px solid rgba(61,240,168,.4);background:rgba(61,240,168,.07)}
+.mv-input{display:flex;gap:8px;margin-top:12px}
+.mv-input input{flex:1;background:rgba(7,8,18,.5);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;color:var(--txt);font-size:12.5px;outline:none}
+body.light .mv-input input{background:rgba(255,255,255,.7)}
+.mv-input input:focus{border-color:var(--cyan)}
+.lock-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--dim)}
+.lock-row:last-child{border:none}
+.lock-row svg{color:var(--dim2)}
+.lock-row .lk{margin-left:auto;font-size:8.5px;font-weight:800;letter-spacing:.1em;color:var(--pink2);border:1px solid rgba(255,45,175,.35);background:rgba(255,45,175,.06);padding:3px 9px;border-radius:99px}
+@media(max-width:980px){.mv-grid{grid-template-columns:1fr}}
+
+/* ============ OPENING SCREENS — BREATHING ROOM ============ */
+.boot-word{letter-spacing:.45em;padding-left:.45em;margin-bottom:8px}
+.boot-sub{letter-spacing:.4em;padding-left:.4em;margin-bottom:34px}
+.grid-head .eyebrow{letter-spacing:.52em;padding-left:.52em;margin-bottom:18px}
+.grid-head h1{letter-spacing:.02em;line-height:1.3}
+.grid-head p{letter-spacing:.05em;margin-top:14px}
+.grid-head{margin-bottom:46px}
+.engines{gap:22px}
+.engine-in{padding:32px 30px;min-height:250px}
+.engine h3{letter-spacing:.18em;line-height:1.55;margin-bottom:12px}
+.engine p{line-height:1.75;letter-spacing:.02em}
+.engine .est{margin-top:18px}
+.engine .st-pill{letter-spacing:.16em;padding:5px 12px}
+.users-in .eyebrow{letter-spacing:.52em;padding-left:.52em;margin-bottom:18px}
+.users-in h1{letter-spacing:.02em;margin-bottom:12px}
+.users-in p{letter-spacing:.08em;margin-bottom:48px}
+.user-row{gap:40px}
+.user-card b{letter-spacing:.14em}
+.user-card small{letter-spacing:.24em;margin-top:7px}
+.user-card .uav{margin-bottom:16px}
+.grid-foot{letter-spacing:.32em;padding-left:.32em;margin-top:42px}
+
+/* ============ MORE GLASS ============ */
+.card,.metric,.ws-btn,.kn-doc,.lib-card,.cl-card,.client-chip,.gen-box{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(255,255,255,.03),0 14px 48px -20px rgba(0,0,0,.7)}
+body.light .card,body.light .metric,body.light .ws-btn,body.light .kn-doc,body.light .lib-card,body.light .cl-card,body.light .client-chip,body.light .gen-box{box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.3),0 14px 44px -20px rgba(90,40,130,.32)}
+.prompt-box,.call-window,.mv-win,textarea{backdrop-filter:var(--glass)}
+
+/* ============ ANIME PARTICLES + SCREEN SHAKE ============ */
+#anime{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+#anime i{position:absolute;bottom:-12px;border-radius:50%;filter:blur(.6px);animation:floatup linear infinite}
+@keyframes floatup{0%{transform:translateY(0) translateX(0);opacity:0}8%{opacity:.6}90%{opacity:.35}100%{transform:translateY(-108vh) translateX(var(--dx,20px));opacity:0}}
+body.shake #app,body.shake #grid,body.shake #users{animation:shakefx .45s ease}
+@keyframes shakefx{0%,100%{transform:none}18%{transform:translate(-8px,5px) rotate(-.35deg)}38%{transform:translate(7px,-5px) rotate(.3deg)}58%{transform:translate(-5px,3px)}78%{transform:translate(3px,-2px)}}
+
+/* ============ MANGA FX — GLASS & ON-BRAND ============ */
+#manga{background:rgba(8,6,20,.5);backdrop-filter:blur(24px) saturate(1.5)}
+body.light #manga{background:rgba(248,246,255,.55)}
+#manga .mg-lines{background:repeating-conic-gradient(from 0deg,rgba(255,45,175,.55) 0deg 1.4deg,transparent 1.4deg 6.2deg)}
+body.light #manga .mg-lines{background:repeating-conic-gradient(from 0deg,rgba(214,24,127,.4) 0deg 1.4deg,transparent 1.4deg 6.2deg)}
+#manga .mg-dots{background-image:radial-gradient(circle,rgba(255,110,199,.45) 1.4px,transparent 1.6px)}
+#manga .mg-flash{background:linear-gradient(135deg,rgba(255,45,175,.75),rgba(200,107,255,.75))}
+#manga .mg-burst{background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.05));backdrop-filter:blur(10px) saturate(1.4);filter:drop-shadow(0 0 34px rgba(255,45,175,.75)) drop-shadow(0 0 80px rgba(200,107,255,.5))}
+body.light #manga .mg-burst{background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(255,255,255,.55))}
+#manga .mg-word{color:#fff;text-shadow:0 0 22px rgba(255,45,175,.95),0 0 64px rgba(200,107,255,.8),0 2px 0 rgba(0,0,0,.25)}
+body.light #manga .mg-word{color:#1C1032;text-shadow:0 0 26px rgba(255,45,175,.55),0 0 70px rgba(200,107,255,.4)}
+
+/* ============ CLIENT LOGIN + CLIENT MODE ============ */
+#clientLogin{position:fixed;inset:0;z-index:96;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .5s,visibility .5s;background:rgba(4,5,12,.6);backdrop-filter:var(--glass)}
+#clientLogin.on{opacity:1;visibility:visible}
+body.light #clientLogin{background:rgba(240,238,248,.55)}
+.cli-box{width:min(400px,90vw);border-radius:26px;padding:1.5px;border:1.5px solid transparent;background:linear-gradient(rgba(10,12,24,.7),rgba(10,12,24,.7)) padding-box,conic-gradient(from var(--ang,0deg),#4DE8FF,transparent 35%,#4DE8FF 55%,transparent 85%,#4DE8FF) border-box;animation:rot 8s linear infinite,rise .6s ease}
+.cli-in{background:rgba(9,11,22,.72);backdrop-filter:var(--glass);border-radius:24px;padding:36px 34px;text-align:center}
+body.light .cli-in{background:rgba(255,255,255,.75)}
+.cli-in .cav-big{width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#4DE8FF,#38B6FF);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#03141B;margin:0 auto 18px;box-shadow:0 0 40px -8px #4DE8FF}
+.cli-in h2{font-size:19px;letter-spacing:.04em;margin-bottom:5px}
+.cli-in .sub2{font-size:11px;color:var(--dim);letter-spacing:.14em;margin-bottom:26px}
+.cli-in input{width:100%;background:rgba(7,8,18,.5);border:1px solid var(--line2);border-radius:12px;padding:12px 16px;color:var(--txt);font-size:13px;outline:none;margin-bottom:11px}
+body.light .cli-in input{background:rgba(255,255,255,.7)}
+.cli-in input:focus{border-color:var(--cyan)}
+.cli-note{font-size:10.5px;color:var(--dim2);line-height:1.6;margin-top:16px}
+.client-link{margin-top:44px;font-size:11.5px;color:var(--dim);letter-spacing:.1em;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px}
+.client-link:hover{color:var(--cyan)}
+body.clientmode .nav-label,body.clientmode .nav-item:not(.clientOnly),body.clientmode .back-grid{display:none}
+body.clientmode .adm-only{display:none !important}
+.clientOnly{display:none}
+body.clientmode .clientOnly{display:flex;color:var(--cyan);border-color:rgba(77,232,255,.3);background:rgba(77,232,255,.05)}
+</style>
+</head>
+<body>
+
+<div id="aurora"><i></i><i></i><i></i></div>
+<div id="flash"></div>
+<div id="anime"></div>
+<div id="manga"><div class="mg-lines"></div><div class="mg-dots"></div><div class="mg-flash"></div><div class="mg-burst"><span class="mg-word">パッ!!</span></div></div>
+<div id="dock">
+  <button id="userBtn" title="Switch user">B</button>
+  <div class="dk-sep"></div>
+  <button id="themeToggle" title="Toggle light / dark"></button>
+  <div class="dk-sep"></div>
+  <button id="langToggle" title="English / 中文">中文</button>
+</div>
+
+<!-- BOOT -->
+<div id="boot">
+  <div class="boot-in">
+    <div class="boot-mark">R</div>
+    <div class="boot-word">REAVOS</div>
+    <div class="boot-sub">AI SYSTEMS GRID · PIXEL ANXIETY</div>
+    <div class="boot-log" id="bootLog"></div>
+    <div class="boot-bar"><i id="bootBar"></i></div>
+    <div class="boot-pct" id="bootPct">0%</div>
+  </div>
+</div>
+
+<!-- USER SELECT -->
+<div id="users">
+  <div class="users-in">
+    <div class="eyebrow">SYSTEMS READY</div>
+    <h1>Who's <span class="grad">building</span> today?</h1>
+    <p>Select your profile to load your workspaces</p>
+    <div class="user-row">
+      <div class="user-card u-helen" onclick="pickUser('Helen')"><div class="uav">H</div><b>Helen</b><small>SUPER ADMIN</small></div>
+      <div class="user-card u-brendan" onclick="pickUser('Brendan')"><div class="uav">B</div><b>Brendan</b><small>SUPER ADMIN</small></div>
+      <div class="user-card u-david" onclick="pickUser('David')"><div class="uav">D</div><b>David</b><small>SUPER ADMIN</small></div>
+      <div class="user-card u-lex" onclick="pickUser('Lex')"><div class="uav">L</div><b>Lex</b><small>SUPER ADMIN</small></div>
+    </div>
+    <div class="client-link" onclick="document.getElementById('clientLogin').classList.add('on')">Client? Sign in to your portal →</div>
+  </div>
+</div>
+
+<!-- CLIENT LOGIN -->
+<div id="clientLogin">
+  <div class="cli-box"><div class="cli-in">
+    <div class="cav-big">MV</div>
+    <h2>Client Portal</h2>
+    <div class="sub2">SCOPED ACCESS · YOUR WORKSPACE ONLY</div>
+    <input value="admin@marvian.com.au" spellcheck="false">
+    <input type="password" value="••••••••••">
+    <button class="cyan-btn" style="width:100%;padding:12px" onclick="clientSignIn()">Sign In</button>
+    <div class="cli-note">Client accounts see only their own agent, stats and knowledge.<br>Pixel Anxiety engineering stays invisible.</div>
+    <div class="cli-note" style="cursor:pointer;color:var(--dim)" onclick="document.getElementById('clientLogin').classList.remove('on')">← Back</div>
+  </div></div>
+</div>
+
+<!-- ENGINE GRID -->
+<div id="grid">
+  <div class="grid-in">
+    <div class="grid-head">
+      <div class="eyebrow">ALL ENGINES ONLINE</div>
+      <h1>Welcome back, <span class="grad" id="gridName">Brendan</span></h1>
+      <p>Four build engines. One operating system. Select where you're building today.</p>
+    </div>
+    <div class="engines">
+      <div class="engine e-voice" onclick="enterEngine('voice')"><div class="engine-in">
+        <div class="eicon" data-icon="mic"></div>
+        <h3>VOICE AI SYSTEMS</h3>
+        <p>REAVOS — build, test, optimise and analyse AI voice employees for Australian real estate. 3 agents live on Retell AI.</p>
+        <div class="est"><span class="st-pill st-live">● LIVE — 3 AGENTS DEPLOYED</span><span class="enter">ENTER →</span></div>
+      </div></div>
+      <div class="engine e-game" onclick="enterEngine('game')"><div class="engine-in">
+        <div class="eicon" data-icon="game"></div>
+        <h3>GAMING AI SYSTEMS</h3>
+        <p>Mini-game build engine — rapid prototyping of playable web games with AI-generated mechanics, art direction and levels.</p>
+        <div class="est"><span class="st-pill st-live">● LIVE — 8 BUILDS SHIPPED</span><span class="enter">ENTER →</span></div>
+      </div></div>
+      <div class="engine e-mkt" onclick="enterEngine('mkt')"><div class="engine-in">
+        <div class="eicon" data-icon="megaphone"></div>
+        <h3>MARKETING AI SYSTEMS</h3>
+        <p>Campaign engine — listing copy, social packs, email sequences and brand-locked creative generated at scale.</p>
+        <div class="est"><span class="st-pill st-dev">◐ STANDBY — Q3 2026</span><span class="enter">PREVIEW →</span></div>
+      </div></div>
+      <div class="engine e-ops" onclick="enterEngine('ops')"><div class="engine-in">
+        <div class="eicon" data-icon="gear"></div>
+        <h3>OPERATIONS AI SYSTEMS</h3>
+        <p>Back-office engine — SOP automation, document generation, compliance monitoring and workflow orchestration.</p>
+        <div class="est"><span class="st-pill st-dev">◐ STANDBY — Q4 2026</span><span class="enter">PREVIEW →</span></div>
+      </div></div>
+    </div>
+    <div class="grid-foot">PIXEL ANXIETY · MULTI-ENGINE AI BUILD PLATFORM · v1.3</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<aside>
+  <div class="logo">
+    <div class="logo-mark">R</div>
+    <div><b>REAVOS</b><span>VOICE AI SYSTEMS</span></div>
+  </div>
+  <div class="back-grid" onclick="showGrid()"><span class="ic" data-icon="grid"></span><span>ENGINE GRID</span></div>
+  <div class="nav-item active" data-v="home"><span class="ic" data-icon="deck"></span><span class="txt">Command Deck</span></div>
+  <div class="nav-item" data-v="clients"><span class="ic" data-icon="users"></span><span class="txt">Client Dashboards</span></div>
+  <div class="nav-label nl-build">▮ BUILD</div>
+  <div class="nav-item" data-v="build"><span class="ic" data-icon="bolt"></span><span class="txt">Agent Builder</span></div>
+  <div class="nav-item" data-v="knowledge"><span class="ic" data-icon="book"></span><span class="txt">Knowledge Centre</span></div>
+  <div class="nav-item" data-v="library"><span class="ic" data-icon="layers"></span><span class="txt">Prompt Library</span></div>
+  <div class="nav-label nl-test">▮ TEST</div>
+  <div class="nav-item" data-v="test"><span class="ic" data-icon="phone"></span><span class="txt">Call Simulator</span></div>
+  <div class="nav-item" data-v="qa"><span class="ic" data-icon="check"></span><span class="txt">QA Centre</span></div>
+  <div class="nav-label nl-opt">▮ OPTIMISE</div>
+  <div class="nav-item" data-v="optimiser"><span class="ic" data-icon="spark"></span><span class="txt">Prompt Optimiser</span></div>
+  <div class="nav-label nl-ana">▮ ANALYSE</div>
+  <div class="nav-item" data-v="analyse"><span class="ic" data-icon="chart"></span><span class="txt">Voice Analytics</span></div>
+  <div class="nav-item clientOnly" onclick="clientLogout()"><span class="ic" data-icon="lock"></span><span class="txt">Log Out</span></div>
+  <div class="side-foot">
+    <div class="pill"><span class="dot"></span>Claude engine online</div><br>
+    <div class="pill retell"><span class="dot"></span>Retell AI connected</div>
+    <div style="margin-top:8px">REAVOS v1.3 · Build 402</div>
+  </div>
+</aside>
+
+<main>
+  <div class="topbar">
+    <div><div class="crumb" id="crumb">VOICE AI / Command Deck</div><h1 class="page" id="pageTitle">Command <span class="grad">Deck</span></h1></div>
+    <div class="client-chip"><div class="av">PA</div><div><b style="font-size:12.5px">Pixel Anxiety</b><small>Active workspace · 3 agents live on Retell AI</small></div></div>
+  </div>
+
+  <!-- HOME -->
+  <section class="view active" id="v-home">
+    <div class="loop-note"><span class="sync" data-icon="loop"></span>Four functions, one continuous loop — not a pipeline. Ship an agent, watch the live calls, optimise, re-test, redeploy. Any order, as often as it takes.</div>
+    <div class="deck">
+      <div class="hub hub-build" onclick="nav('build')"><div class="hub-in">
+        <div class="fn"><span class="glyph" data-icon="bolt"></span>BUILD</div>
+        <div class="stat"><b>23</b><small>AGENTS BUILT</small></div>
+        <h2>Create AI voice employees</h2>
+        <p>One-touch agent builds from the client's discovery data and 30-document knowledge base. Prompt pack, persona, flow and Retell config in a single pass.</p>
+        <div class="tools"><span class="tool" onclick="event.stopPropagation();nav('build')">Agent Builder</span><span class="tool" onclick="event.stopPropagation();nav('knowledge')">Knowledge Centre</span><span class="tool" onclick="event.stopPropagation();nav('library')">Prompt Library</span></div>
+      </div></div>
+      <div class="hub hub-test" onclick="nav('test')"><div class="hub-in">
+        <div class="fn"><span class="glyph" data-icon="phone"></span>TEST</div>
+        <div class="stat"><b>142</b><small>SIM TURNS TODAY</small></div>
+        <h2>Simulate before you ship</h2>
+        <p>Run live call simulations against the Retell AI sandbox, watch the agent think, and gate every deployment behind a 12-point QA report.</p>
+        <div class="tools"><span class="tool" onclick="event.stopPropagation();nav('test')">Call Simulator</span><span class="tool" onclick="event.stopPropagation();nav('qa')">QA Centre</span></div>
+      </div></div>
+      <div class="hub hub-opt" onclick="nav('optimiser')"><div class="hub-in">
+        <div class="fn"><span class="glyph" data-icon="spark"></span>OPTIMISE</div>
+        <div class="stat"><b>+11%</b><small>BOOKING RATE (30D)</small></div>
+        <h2>Sharpen what's live</h2>
+        <p>Score any prompt against the 8-point framework, apply the AI Consultant's recommendations, and push improved versions back through TEST.</p>
+        <div class="tools"><span class="tool" onclick="event.stopPropagation();nav('optimiser')">Prompt Optimiser</span><span class="tool">AI Consultant</span></div>
+      </div></div>
+      <div class="hub hub-ana" onclick="nav('analyse')"><div class="hub-in">
+        <div class="fn"><span class="glyph" data-icon="chart"></span>ANALYSE</div>
+        <div class="stat"><b>1,284</b><small>LIVE CALLS (30D)</small></div>
+        <h2>Learn from every call</h2>
+        <p>Live Retell AI call logs: volumes, booking conversion, sentiment and agent leaderboards. Every insight feeds the next OPTIMISE cycle.</p>
+        <div class="tools"><span class="tool" onclick="event.stopPropagation();nav('analyse')">Voice Analytics</span><span class="tool" onclick="event.stopPropagation();nav('analyse')">Call Logs</span></div>
+      </div></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="num" data-count="12">0</div><div class="lbl">Active Clients</div><div class="delta">▲ 3 this month</div></div>
+      <div class="metric"><div class="num" data-count="3">0</div><div class="lbl">Agents Live on Retell</div><div class="delta">▲ 1 this week</div></div>
+      <div class="metric"><div class="num" data-count="30">0</div><div class="lbl">Knowledge Files</div><div class="delta">100% indexed</div></div>
+      <div class="metric"><div class="num" data-count="96">0</div><div class="lbl">Avg QA Score</div><div class="delta">▲ 2.4 pts</div></div>
+      <div class="metric"><div class="num" data-count="87">0</div><div class="lbl">Calls Booked → Appraisal</div><div class="delta">▲ 11% after last optimise</div></div>
+    </div>
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;cursor:pointer" onclick="nav('clients')">
+      <div>
+        <h3 style="margin-bottom:5px">Client Dashboards <span class="tag">31 WORKSPACES</span> <span class="tag cy">MARVIAN — LIVE CLIENT</span></h3>
+        <p style="font-size:12px;color:var(--dim);line-height:1.5">Every client gets a scoped portal — their stats, their testing, their knowledge. Never the engine room.</p>
+      </div>
+      <button class="copy-btn" onclick="event.stopPropagation();nav('clients')">Open Directory →</button>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Loop Activity <span class="tag">LIVE</span></h3>
+        <div class="act"><span class="t">2 min ago</span><div><span style="color:var(--gold)">ANALYSE</span> flagged a 9-second greeting on <b>Reception Agent</b> → sent to OPTIMISE queue.</div></div>
+        <div class="act"><span class="t">26 min ago</span><div><span style="color:var(--violet)">OPTIMISE</span> rewrote <b>Seller Agent</b> price-question handling (score 89 → 96).</div></div>
+        <div class="act"><span class="t">41 min ago</span><div><span style="color:var(--cyan)">TEST</span> — Seller Agent v2.3 passed 142-turn simulation, 0 unverified claims.</div></div>
+        <div class="act"><span class="t">1 hr ago</span><div><span style="color:var(--pink)">BUILD</span> — Seller Agent v2.3 deployed to Retell AI production.</div></div>
+        <div class="act"><span class="t">3 hrs ago</span><div><span style="color:var(--gold)">ANALYSE</span> — weekly report: booking conversion up 11% since last loop.</div></div>
+      </div>
+      <div class="card">
+        <h3>AI Consultant <span class="tag">CLAUDE</span></h3>
+        <div class="sugg"><span class="ico">◆</span><div>Buyer Agent's after-8pm calls convert 22% lower. Recommend a softer late-night greeting variant — one click to A/B it via Retell.</div></div>
+        <div class="sugg"><span class="ico">◆</span><div>Knowledge gap: 14 callers asked about <b>rental appraisals</b> this week and the agent deferred every time. Add a rental FAQ doc.</div></div>
+        <div class="sugg"><span class="ico">◆</span><div>Reception Agent transfers to Sales in 4.2s median — best in class. Apply the same routing prompt to Property Management.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILD -->
+  <section class="view" id="v-build">
+    <p style="color:var(--dim);font-size:13px;margin:-8px 0 22px;max-width:660px">Select an AI employee to build. Claude assembles it from discovery data and the 30-document knowledge base — including a deploy-ready <span style="color:var(--cyan)">Retell AI config</span>.</p>
+    <div class="ws-grid" id="wsGrid"></div>
+  </section>
+
+  <!-- OUTPUT -->
+  <section class="view" id="v-output">
+    <div class="out-head">
+      <div class="score-wrap">
+        <div class="ring"><svg width="74" height="74"><circle cx="37" cy="37" r="31" stroke="rgba(255,110,199,.12)" stroke-width="6" fill="none"/><circle id="scoreArc" cx="37" cy="37" r="31" stroke="url(#g1)" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="195" stroke-dashoffset="195"/><defs><linearGradient id="g1"><stop offset="0%" stop-color="#FF2DAF"/><stop offset="100%" stop-color="#C86BFF"/></linearGradient></defs></svg><div class="val" id="scoreVal">0</div></div>
+        <div class="cap"><b style="color:var(--txt)">Optimiser score</b><br>Structure · Constraints · Knowledge grounding · Hallucination risk</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="ghost-btn" onclick="nav('build')">← Build</button>
+        <button class="ghost-btn" onclick="nav('test')">Send to TEST →</button>
+        <button class="copy-btn" onclick="copyOut()">Copy</button>
+        <button class="cyan-btn" onclick="deployRetell()">Deploy to Retell AI</button>
+      </div>
+    </div>
+    <div class="tabs" id="outTabs"></div>
+    <div class="prompt-box" id="outBox"></div>
+  </section>
+
+  <!-- TEST -->
+  <section class="view" id="v-test">
+    <p style="color:var(--dim);font-size:13px;margin:-8px 0 18px;max-width:680px">Run a scripted buyer/vendor scenario against the agent in the <span style="color:var(--cyan)">Retell AI sandbox</span>. Watch turn-by-turn, with QA annotations as the agent grounds, complies and escalates.</p>
+    <div class="sim-pick" id="simPick"></div>
+    <div class="sim-grid">
+      <div>
+        <div class="call-window" id="callWindow"><div style="color:var(--dim2);font-size:12.5px;padding:24px;text-align:center">Select an agent and press <b>Run Simulation</b>.</div></div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="cyan-btn" onclick="runSim()">Run Simulation</button>
+          <button class="ghost-btn" onclick="nav('qa')">Full QA Report →</button>
+          <button class="ghost-btn" onclick="nav('optimiser')">Send to OPTIMISE →</button>
+        </div>
+      </div>
+      <div class="sim-side">
+        <div class="card">
+          <h3>Session <span class="tag cy">RETELL SANDBOX</span></h3>
+          <div class="kv"><span>Agent</span><b id="simAgent">—</b></div>
+          <div class="kv"><span>Voice</span><b id="simVoice">—</b></div>
+          <div class="kv"><span>Latency (first token)</span><b class="c" id="simLat">—</b></div>
+          <div class="kv"><span>Grounded responses</span><b class="g" id="simGround">—</b></div>
+          <div class="kv"><span>Compliance flags</span><b id="simComp">—</b></div>
+          <div class="kv"><span>Outcome</span><b class="g" id="simOut">—</b></div>
+        </div>
+        <div class="card">
+          <h3>Why this matters</h3>
+          <p style="font-size:12px;color:var(--dim);line-height:1.65">Every simulated turn is scored before an agent ever takes a real call. Fail any compliance check and deployment is blocked automatically — the loop sends it back to OPTIMISE instead.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QA -->
+  <section class="view" id="v-qa">
+    <div class="card" style="max-width:780px">
+      <h3>Pre-Deployment QA — Seller Voice Agent v2.3 <span class="tag">96/100</span> <span class="tag cy">RETELL READY</span></h3>
+      <div class="qa-row"><span class="qa-badge qa-pass">PASS</span> Hallucination risk — all responses grounded in indexed knowledge<span class="d">0 unverified claims</span></div>
+      <div class="qa-row"><span class="qa-badge qa-pass">PASS</span> Compliance — underquoting language rules enforced<span class="d">Fair Trading aligned</span></div>
+      <div class="qa-row"><span class="qa-badge qa-pass">PASS</span> Australian English — spelling, idiom and pronunciation guides<span class="d">en-AU locked</span></div>
+      <div class="qa-row"><span class="qa-badge qa-pass">PASS</span> Escalation logic — human handover triggers verified<span class="d">6 triggers tested</span></div>
+      <div class="qa-row"><span class="qa-badge qa-pass">PASS</span> Retell config — voice, interruption sensitivity, webhook schema<span class="d">API v2 validated</span></div>
+      <div class="qa-row"><span class="qa-badge qa-pass">PASS</span> Latency — median first token 380ms in sandbox<span class="d">target &lt; 500ms</span></div>
+      <div class="qa-row"><span class="qa-badge qa-warn">REVIEW</span> After-hours escalation number unconfirmed by client<span class="d">1 open item</span></div>
+      <div class="qa-row"><span class="qa-badge qa-pass">PASS</span> Conversation quality — interruption handling and context memory<span class="d">142 test turns</span></div>
+    </div>
+  </section>
+
+  <!-- OPTIMISE -->
+  <section class="view" id="v-optimiser">
+    <div class="opt-grid">
+      <div class="card">
+        <h3>Paste any prompt</h3>
+        <textarea id="optIn" placeholder="Paste a prompt here and REAVOS will score it against the 8-point framework, then rewrite it to production standard…"></textarea>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="copy-btn" onclick="runOptimiser()">Analyse &amp; Score</button>
+          <button class="ghost-btn" onclick="loadSamplePrompt()">Load weak sample</button>
+          <button class="ghost-btn" onclick="nav('test')">Re-test after changes →</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Framework Score <span class="tag" id="optTotal">—</span></h3>
+        <div id="optCrits"></div>
+        <div id="optVerdict" style="font-size:12.5px;color:var(--dim);line-height:1.6;margin-top:6px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANALYSE -->
+  <section class="view" id="v-analyse">
+    <div class="metrics">
+      <div class="metric"><div class="num" data-count="1284">0</div><div class="lbl">Live Calls (30d)</div><div class="delta">▲ 18% vs prior</div></div>
+      <div class="metric"><div class="num" data-count="87">0</div><div class="lbl">Appraisals Booked</div><div class="delta">▲ 11% after optimise loop</div></div>
+      <div class="metric"><div class="num">380<span style="font-size:13px;color:var(--dim)">ms</span></div><div class="lbl">Median First Token</div><div class="delta">Retell AI production</div></div>
+      <div class="metric"><div class="num">4.6<span style="font-size:13px;color:var(--dim)">/5</span></div><div class="lbl">Caller Sentiment</div><div class="delta">▲ 0.3 this month</div></div>
+      <div class="metric"><div class="num" data-count="94">0</div><div class="lbl">% Resolved Without Human</div><div class="delta">▲ 6 pts</div></div>
+    </div>
+    <div class="ana-grid">
+      <div class="card">
+        <h3>Call Volume — Last 14 Days <span class="tag cy">RETELL CALL LOGS</span></h3>
+        <div><div class="bars" id="volBars"></div><div class="bar-lbls" id="volLbls"></div></div>
+      </div>
+      <div class="card">
+        <h3>Caller Sentiment <span class="tag gd">30 DAYS</span></h3>
+        <div class="donut-wrap">
+          <svg width="140" height="140" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="rgba(255,110,199,.08)" stroke-width="6"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#3DF0A8" stroke-width="6" stroke-dasharray="62 38" stroke-dashoffset="25" stroke-linecap="round"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#F5B95B" stroke-width="6" stroke-dasharray="27 73" stroke-dashoffset="63" stroke-linecap="round"/>
+            <circle cx="21" cy="21" r="15.9" fill="none" stroke="#FF6B81" stroke-width="6" stroke-dasharray="9 91" stroke-dashoffset="36" stroke-linecap="round"/>
+            <text x="21" y="20" text-anchor="middle" fill="#F4EFF9" font-size="7" font-weight="800">62%</text>
+            <text x="21" y="27" text-anchor="middle" fill="#9A93AD" font-size="3.4">POSITIVE</text>
+          </svg>
+          <div class="legend">
+            <div><i style="background:#3DF0A8"></i>Positive — 62%</div>
+            <div><i style="background:#F5B95B"></i>Neutral — 29%</div>
+            <div><i style="background:#FF6B81"></i>Negative — 9%</div>
+          </div>
+        </div>
+        <p style="font-size:11.5px;color:var(--dim);line-height:1.6;margin-top:12px">Negative calls cluster around price-guide pushback. The AI Consultant has drafted a revised guide-explanation line → in the OPTIMISE queue.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Agent Leaderboard <span class="tag cy">LIVE ON RETELL AI</span></h3>
+      <table class="lead">
+        <tr><th>AGENT</th><th>CALLS (30D)</th><th>BOOKED</th><th>CONVERSION</th><th>SENTIMENT</th><th>TREND</th></tr>
+        <tr><td><b>Olivia</b> — Seller Agent</td><td>412</td><td>87 appraisals</td><td><span class="mini-bar"><i style="width:78%"></i></span> 21.1%</td><td>4.7</td><td class="up">▲ +11%</td></tr>
+        <tr><td><b>Marcus</b> — Buyer Agent</td><td>531</td><td>203 inspections</td><td><span class="mini-bar"><i style="width:88%"></i></span> 38.2%</td><td>4.6</td><td class="up">▲ +6%</td></tr>
+        <tr><td><b>Sophie</b> — Reception</td><td>341</td><td>96% routed &lt; 30s</td><td><span class="mini-bar"><i style="width:96%"></i></span> 96.0%</td><td>4.5</td><td class="up">▲ +2%</td></tr>
+      </table>
+      <p style="font-size:11.5px;color:var(--dim);margin-top:12px">Numbers stream from Retell AI call logs and post-call analysis webhooks. Click any agent (full version) to replay calls with transcripts.</p>
+    </div>
+  </section>
+
+  <!-- CLIENT DIRECTORY -->
+  <section class="view" id="v-clients">
+    <div class="kn-tools">
+      <input class="kn-search" id="clSearch" placeholder="Search 31 client workspaces…">
+    </div>
+    <div class="cl-grid" id="clGrid"></div>
+  </section>
+
+  <!-- GENERIC CLIENT DASH (demo data) -->
+  <section class="view" id="v-clientview">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin:-4px 0 18px">
+      <span class="tag gd">DEMO WORKSPACE — RANDOMISED DATA</span>
+      <button class="ghost-btn" onclick="nav('clients')">← Directory</button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="num" id="cvCalls">0</div><div class="lbl">Calls (30d)</div></div>
+      <div class="metric"><div class="num" id="cvBooked">0</div><div class="lbl">Appointments Booked</div></div>
+      <div class="metric"><div class="num" id="cvAfter">0</div><div class="lbl">After-Hours Answered</div></div>
+      <div class="metric"><div class="num" id="cvSent">0</div><div class="lbl">Sentiment /5</div></div>
+      <div class="metric"><div class="num" id="cvAgents">0</div><div class="lbl">Voice Agents</div></div>
+    </div>
+    <div class="card" style="max-width:700px">
+      <h3 id="cvName">Client</h3>
+      <p style="font-size:12.5px;color:var(--dim);line-height:1.65" id="cvDesc"></p>
+    </div>
+  </section>
+
+  <!-- MARVIAN CLIENT PORTAL -->
+  <section class="view" id="v-marvian">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 14px">
+      <span class="tag cy">LIVE CLIENT</span><span class="tag">SCOPED ACCESS</span>
+      <button class="ghost-btn adm-only" style="margin-left:auto;padding:6px 14px;font-size:11.5px" onclick="nav('clients')">← Directory</button>
+    </div>
+    <div class="mv-note" id="mvNote"></div>
+    <div class="metrics">
+      <div class="metric"><div class="num">428</div><div class="lbl">Calls Handled (30d)</div><div class="delta">▲ 14%</div></div>
+      <div class="metric"><div class="num">143</div><div class="lbl">After-Hours Answered</div><div class="delta">Would have been missed</div></div>
+      <div class="metric"><div class="num">31</div><div class="lbl">Appraisals Booked</div><div class="delta">▲ 5 vs last month</div></div>
+      <div class="metric"><div class="num">4.6<span style="font-size:13px;color:var(--dim)">/5</span></div><div class="lbl">Caller Sentiment</div><div class="delta">▲ 0.2</div></div>
+      <div class="metric"><div class="num">96<span style="font-size:13px;color:var(--dim)">%</span></div><div class="lbl">Resolved Without Staff</div><div class="delta">▲ 4 pts</div></div>
+    </div>
+    <div class="mv-grid">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <h3>Test Your Voice Agent <span class="tag cy">SANDBOX</span></h3>
+          <p style="font-size:12px;color:var(--dim);margin-bottom:12px;line-height:1.55">Run safe test scenarios against your agent — changes never touch live calls until Pixel Anxiety approves them.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="cyan-btn" style="padding:9px 15px;font-size:12px" onclick="mvTest('greet')">Test Greeting</button>
+            <button class="cyan-btn" style="padding:9px 15px;font-size:12px" onclick="mvTest('enquiry')">Test Enquiry</button>
+            <button class="cyan-btn" style="padding:9px 15px;font-size:12px" onclick="mvTest('product')">Test New Product</button>
+          </div>
+          <div class="mv-win" id="mvWin"><div style="color:var(--dim2);font-size:12px;text-align:center;padding:18px">Pick a scenario to hear how your agent responds.</div></div>
+        </div>
+        <div class="card">
+          <h3>Pixel Anxiety Engine <span class="tag">RESTRICTED</span></h3>
+          <div class="lock-row" data-lk>System Prompts &amp; Prompt Packs<span class="lk">HIDDEN</span></div>
+          <div class="lock-row" data-lk>Prompt Optimiser &amp; Frameworks<span class="lk">HIDDEN</span></div>
+          <div class="lock-row" data-lk>Conversation Flow Logic<span class="lk">HIDDEN</span></div>
+          <div class="lock-row" data-lk>Other Client Workspaces<span class="lk">HIDDEN</span></div>
+          <p style="font-size:11px;color:var(--dim2);margin-top:10px;line-height:1.6">Clients see outcomes, not engineering. The methodology stays Pixel Anxiety IP.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h3>Your Source of Truth <span class="tag cy">MARVIAN ONLY</span></h3>
+          <p style="font-size:12px;color:var(--dim);margin-bottom:12px;line-height:1.55">Upload new products, pricing or policies. Your agent updates after Pixel Anxiety reviews — and our team is notified instantly.</p>
+          <div class="mv-drop" onclick="mvUpload()">Drop files here or click to upload<br><span style="font-size:10.5px;color:var(--dim2)">PDF · DOCX · CSV — goes to review queue</span></div>
+          <div class="mv-input">
+            <input id="mvNew" placeholder="Or describe a new product / policy update…">
+            <button class="copy-btn" style="padding:9px 16px;font-size:12px" onclick="mvAdd()">Submit</button>
+          </div>
+          <div id="mvDocs" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KNOWLEDGE -->
+  <section class="view" id="v-knowledge">
+    <div class="kn-tools">
+      <input class="kn-search" id="knSearch" placeholder="Search 30 indexed documents…">
+      <button class="chip on" data-cat="all">All</button>
+      <button class="chip" data-cat="Compliance">Compliance</button>
+      <button class="chip" data-cat="Sales">Sales</button>
+      <button class="chip" data-cat="Marketing">Marketing</button>
+      <button class="chip" data-cat="Brand">Brand</button>
+      <button class="chip" data-cat="Operations">Operations</button>
+    </div>
+    <div class="kn-grid" id="knGrid"></div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="view" id="v-library">
+    <p style="color:var(--dim);font-size:13px;margin:-8px 0 20px">Reusable, production-ready prompts. Click any card to open it in the output viewer.</p>
+    <div class="lib-grid" id="libGrid"></div>
+  </section>
+</main>
+</div>
+<div class="toast" id="toast">Copied ✓</div>
+
+<!-- GENERATION OVERLAY -->
+<div id="genOverlay">
+  <div class="gen-box">
+    <h2 id="genTitle">Building Seller Voice Agent</h2>
+    <div class="sub">Claude is orchestrating the specialist team against Pixel Anxiety's knowledge base…</div>
+    <div id="genAgents"></div>
+    <div class="gen-bar"><i id="genBar"></i></div>
+  </div>
+</div>
+
+<script>
+/* ================= CUSTOM ICON SET (no emojis) ================= */
+const ICONS={
+ grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+ deck:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/>',
+ bolt:'<path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/>',
+ book:'<path d="M4 19.5V5a2 2 0 0 1 2-2h13v16.5H6a2 2 0 0 0-2 2z"/><path d="M6 19.5h13"/>',
+ layers:'<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13.5l9 5 9-5"/>',
+ phone:'<path d="M5 3.5h4l2 5-2.5 1.8a13 13 0 0 0 5.2 5.2L15.5 13l5 2v4a1.8 1.8 0 0 1-1.8 1.8A16.2 16.2 0 0 1 3.2 5.3 1.8 1.8 0 0 1 5 3.5z"/>',
+ check:'<path d="M4.5 12.5l5 5L20 6.5"/>',
+ spark:'<path d="M12 2.5l2.2 6.3 6.3 2.2-6.3 2.2L12 19.5l-2.2-6.3-6.3-2.2 6.3-2.2L12 2.5z"/>',
+ chart:'<path d="M4 20V11M10 20V4M16 20v-6M3 20h18"/>',
+ loop:'<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 3v4h-4"/>',
+ mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
+ game:'<rect x="2.5" y="7.5" width="19" height="10.5" rx="5"/><path d="M8 10.5v4M6 12.5h4M15.5 11.5h.01M18 14h.01"/>',
+ megaphone:'<path d="M3.5 11v3.5l3.5.5L18.5 19V5L7 9.5 3.5 11z"/><path d="M18.5 9.5a3 3 0 0 1 0 5"/>',
+ gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.7M12 18.5v2.7M2.8 12h2.7M18.5 12h2.7M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9"/>',
+ home:'<path d="M3.5 11.5L12 4l8.5 7.5"/><path d="M5.8 10.5V20h12.4v-9.5"/><path d="M10 20v-5h4v5"/>',
+ key:'<circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2L20 20M16 16l2.5-2.5M18.5 18.5l2-2"/>',
+ headset:'<path d="M4.5 13.5a7.5 7.5 0 0 1 15 0"/><rect x="3" y="13" width="4" height="6.5" rx="2"/><rect x="17" y="13" width="4" height="6.5" rx="2"/><path d="M19 19.5v1a2 2 0 0 1-2 2h-3"/>',
+ wrench:'<path d="M20.5 6.5a5 5 0 0 1-6.6 6.6L7 20l-3-3 6.9-6.9a5 5 0 0 1 6.6-6.6L14 7l3 3 3.5-3.5z"/>',
+ trend:'<path d="M3.5 17.5l5.5-5.5 3.5 3.5 7-7"/><path d="M15 8.5h4.5V13"/>',
+ calendar:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h2.5"/>',
+ chat:'<path d="M21 11.5a7.5 7.5 0 0 1-7.5 7.5H4l2-3.2A7.5 7.5 0 1 1 21 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/>',
+ mail:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.5L12 13.5l8.5-6"/>',
+ doc:'<path d="M6.5 2.5h7.5l4.5 4.5v14.5h-12z"/><path d="M13.5 2.5V7.5h5M9.5 12.5h5M9.5 16h5"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.8"/><path d="M15.5 20a5.5 5.5 0 0 1 5.3-5"/>',
+ lock:'<rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/>',
+ shield:'<path d="M12 2.5l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10v-6l8-3z"/><path d="M9 11.5l2 2 4-4"/>',
+};
+function icn(name,size){return `<svg class="icn" style="font-size:${size||16}px" viewBox="0 0 24 24">${ICONS[name]||ICONS.doc}</svg>`}
+document.querySelectorAll("[data-icon]").forEach(el=>{
+  const s=el.classList.contains("eicon")?24:el.classList.contains("glyph")?16:el.classList.contains("sync")?15:14;
+  el.innerHTML=icn(el.dataset.icon,s);
+});
+
+/* ================= BOOT SEQUENCE ================= */
+const BOOTLINES=[
+ ["Initialising REAVOS core…","ok"],
+ ["Mounting knowledge graph — 30 documents indexed","ok"],
+ ["Claude reasoning engine … connected","ok"],
+ ["Retell AI voice layer … connected","ok"],
+ ["Compliance guardrails (Fair Trading · Underquoting) … armed","ok"],
+ ["Spinning up build engines … 4/4 online","ok"]
+];
+(function boot(){
+  const log=document.getElementById("bootLog"),bar=document.getElementById("bootBar"),pct=document.getElementById("bootPct");
+  let i=0;
+  (function line(){
+    if(i<BOOTLINES.length){
+      const d=document.createElement("div");
+      d.innerHTML=`&gt; ${BOOTLINES[i][0]} <span class="ok">✓</span>`;
+      log.appendChild(d);
+      const p=Math.round((i+1)/BOOTLINES.length*100);
+      bar.style.width=p+"%";pct.textContent=p+"%";
+      i++;setTimeout(line,320+Math.random()*260);
+    }else{
+      setTimeout(()=>{
+        document.getElementById("boot").classList.add("off");
+        document.getElementById("users").classList.add("on");
+      },500);
+    }
+  })();
+})();
+window.USER="Brendan";
+function pickUser(n){
+  mangaFx(n.toUpperCase()+"!!");
+  setTimeout(()=>{
+    window.USER=n;
+    document.getElementById("gridName").textContent=n;
+    document.getElementById("userBtn").textContent=n[0];
+    document.getElementById("users").classList.remove("on");
+    if(!document.getElementById("app").classList.contains("on")){
+      document.getElementById("grid").classList.add("on");
+    }
+    toast((window.zhMode?"欢迎，":"Welcome, ")+n);
+  },300);
+}
+document.getElementById("userBtn").onclick=()=>{
+  document.getElementById("users").classList.add("on");
+};
+function clientSignIn(){
+  document.getElementById("clientLogin").classList.remove("on");
+  mangaFx("MARVIAN!!");
+  setTimeout(()=>{
+    document.getElementById("users").classList.remove("on");
+    document.getElementById("grid").classList.remove("on");
+    document.body.classList.add("clientmode");
+    document.getElementById("app").classList.add("on");
+    document.getElementById("userBtn").textContent="M";
+    nav("marvian");
+    toast("Signed in — Marvian workspace only");
+  },300);
+}
+function clientLogout(){
+  document.body.classList.remove("clientmode");
+  document.getElementById("app").classList.remove("on");
+  document.getElementById("userBtn").textContent=(window.USER||"B")[0];
+  document.getElementById("users").classList.add("on");
+  toast("Signed out");
+}
+function enterEngine(e){
+  if(e==="voice"){
+    mangaFx("起動!!");
+    setTimeout(()=>{
+      const g=document.getElementById("grid");
+      g.classList.remove("on");g.classList.add("off");
+      document.getElementById("app").classList.add("on");
+      setTimeout(()=>animCounts(),300);
+    },300);
+  }else if(e==="game"){
+    toast("GAMING engine — 8 builds shipped. Demo focuses on VOICE today.");
+  }else{
+    toast((e==="mkt"?"MARKETING":"OPERATIONS")+" engine in standby — launching "+(e==="mkt"?"Q3":"Q4")+" 2026.");
+  }
+}
+function showGrid(){
+  document.getElementById("app").classList.remove("on");
+  const g=document.getElementById("grid");
+  g.classList.remove("off");g.classList.add("on");
+}
+
+/* ================= DATA ================= */
+const CLIENT="Pixel Anxiety";
+const KNOWLEDGE=[
+ ["REA Listing Copy Style Guide","Brand"],["REA Photography & Media Submission Standards","Brand"],["REA Headline & Description Formulas","Marketing"],
+ ["Brand Guidelines Master Document","Brand"],["Logo, Colour & Typography Standards","Brand"],["Signboard & Print Collateral Specifications","Brand"],
+ ["Company Tone of Voice Playbook","Brand"],["Client Communication Voice Matrix","Brand"],
+ ["Buyer Enquiry Call Scripts","Sales"],["Vendor Listing Presentation Script","Sales"],["Objection Handling Playbook","Sales"],["Price Reduction Conversation Scripts","Sales"],
+ ["Property Launch Marketing Framework","Marketing"],["Vendor Paid Advertising (VPA) Framework","Marketing"],["Digital Lead Generation Framework","Marketing"],
+ ["Australian Property Law Compliance Guide","Compliance"],["Agency Agreements & Disclosure Obligations","Compliance"],["Contract of Sale & Cooling-Off Requirements","Compliance"],
+ ["Fair Trading Compliance Manual","Compliance"],["Underquoting Prevention Policy","Compliance"],
+ ["Auction Day Rules & Procedures","Compliance"],["Bidder Registration & Conduct Protocol","Compliance"],
+ ["Property Photography Standards Manual","Brand"],["Drone, Twilight & Video Shoot Guidelines","Brand"],
+ ["Open Home Run Sheet & Procedures","Operations"],["Open Home Safety & Security Protocol","Operations"],
+ ["Listing to Settlement SOP","Operations"],["New Agent Onboarding SOP","Operations"],
+ ["Email & SMS Campaign Template Library","Marketing"],["Social Media & Just Listed-Sold Template Pack","Marketing"]
+];
+const AGENTS=[
+ {ic:"home",n:"Seller Voice Agent",d:"Qualifies vendor leads, books appraisals and nurtures listing opportunities.",persona:"Olivia",voice:"11labs-Amelia (AU)",role:"Senior Listing Consultant (AI)",score:96,live:true,
+  docs:["Vendor Listing Presentation Script","Objection Handling Playbook","Underquoting Prevention Policy","Company Tone of Voice Playbook"],
+  goal:"Convert inbound vendor enquiries into booked appraisal appointments while capturing motivation, timeline and property detail for the CRM.",
+  intents:["Appraisal request","'What's my home worth?'","Agent fee questions","Method-of-sale questions","Existing listing status"],
+  esc:["Vendor requests a specific price opinion — never provide one; book the appraisal","Legal or contract questions — transfer to Licensee in Charge","Complaint or distressed caller — warm transfer to Sales Manager within 60 seconds"]},
+ {ic:"key",n:"Buyer Voice Agent",d:"Answers listing enquiries, qualifies buyers and books inspections around the clock.",persona:"Marcus",voice:"11labs-Charlie (AU)",role:"Buyer Concierge (AI)",score:94,live:true,
+  docs:["Buyer Enquiry Call Scripts","REA Listing Copy Style Guide","Contract of Sale & Cooling-Off Requirements","Client Communication Voice Matrix"],
+  goal:"Answer property questions from indexed listing data, qualify buyer position (finance, timeline, criteria) and convert every call into a booked inspection.",
+  intents:["Listing detail questions","Inspection booking","Price guide enquiry","Offer process questions","'Do you have anything else like this?'"],
+  esc:["Price guide pressure beyond the published guide — restate guide, offer agent callback","Legal/cooling-off advice — refer to conveyancer, notify agent","Offer submission — capture details, immediate agent handover"]},
+ {ic:"headset",n:"Reception Voice Agent",d:"Answers every call in under 2 rings, routes, takes messages and books callbacks.",persona:"Sophie",voice:"11labs-Matilda (AU)",role:"Front Desk Coordinator (AI)",score:95,live:true,
+  docs:["Client Communication Voice Matrix","Company Tone of Voice Playbook","Listing to Settlement SOP"],
+  goal:"Triage 100% of inbound calls: identify caller type in two questions, route to the right person or capture a complete structured message.",
+  intents:["Call routing","Message taking","Office hours & directions","Staff availability","General enquiries"],
+  esc:["Urgent settlement issue — direct line to Operations Manager","Media enquiry — Managing Director only, no comment otherwise","Angry caller — empathy script then human within 45 seconds"]},
+ {ic:"wrench",n:"Property Management Agent",d:"Handles tenant maintenance requests, triage and trade dispatch updates.",persona:"Jack",voice:"11labs-Liam (AU)",role:"Property Care Assistant (AI)",score:93,live:false,
+  docs:["Open Home Safety & Security Protocol","Listing to Settlement SOP","Fair Trading Compliance Manual"],
+  goal:"Log maintenance requests with structured triage (urgency, access, photos), set expectations per legislation, and update tenants on job status.",
+  intents:["Maintenance request","Emergency repair","Rent & lease questions","Inspection scheduling","Trade access arrangement"],
+  esc:["Genuine emergency (gas, flood, no power) — emergency trade protocol + PM notified immediately","Tribunal or notice questions — Property Manager only","Rent distress — hardship process, empathetic handling, PM callback same day"]},
+ {ic:"trend",n:"Marketing Assistant",d:"Generates listing copy, social captions and campaign assets on brand, on demand.",persona:"Ava",voice:"Text-based agent",role:"Campaign Copy Specialist (AI)",score:97,live:false,
+  docs:["REA Headline & Description Formulas","REA Listing Copy Style Guide","Social Media & Just Listed-Sold Template Pack","Property Launch Marketing Framework"],
+  goal:"Produce portal-ready listing copy, social captions and email content that scores 100% against the agency style guide with zero compliance flags.",
+  intents:["Listing copy draft","Social caption set","Just Listed / Just Sold assets","Email campaign copy","Headline A/B variants"],
+  esc:["Any price claim without documented evidence — block and flag per Underquoting Prevention Policy","Testimonial use — verify written consent exists","Off-brand tone requests — generate compliant alternative + explain"]},
+ {ic:"calendar",n:"Inspection Booking Agent",d:"Books private inspections and open home slots straight into agent calendars.",persona:"Ruby",voice:"11labs-Freya (AU)",role:"Inspection Coordinator (AI)",score:94,live:false,
+  docs:["Open Home Run Sheet & Procedures","Buyer Enquiry Call Scripts","Open Home Safety & Security Protocol"],
+  goal:"Fill inspection calendars: offer next available slots, capture attendee details for the register, send confirmations and reminders automatically.",
+  intents:["Book private inspection","Open home times","Reschedule / cancel","Directions & access","Group booking for buyer's agents"],
+  esc:["Identity verification fails for private inspection — agent approval required before confirming","Vacant possession security questions — agent handles","Accessibility needs — flag to agent to prepare"]},
+ {ic:"chat",n:"SMS Follow-Up Agent",d:"Runs compliant two-way SMS nurture across the buyer and vendor database.",persona:"Leo",voice:"Text-based agent",role:"Database Nurture Specialist (AI)",score:92,live:false,
+  docs:["Email & SMS Campaign Template Library","Digital Lead Generation Framework","Client Communication Voice Matrix"],
+  goal:"Execute post-open-home and post-enquiry SMS sequences, hold natural two-way conversations, and hand hot responses to agents in real time.",
+  intents:["Post-open follow-up","New listing match alert","Auction reminder","Appraisal anniversary touch","Re-engagement of cold leads"],
+  esc:["STOP or unsubscribe — immediate suppression, confirm once","Buying/selling intent detected — push to agent with full context in under 5 minutes","Complaint via SMS — acknowledge, move to phone"]},
+ {ic:"mail",n:"Email Response Agent",d:"Drafts on-brand replies to every inbox enquiry with agent approval flow.",persona:"Grace",voice:"Text-based agent",role:"Correspondence Specialist (AI)",score:93,live:false,
+  docs:["Email & SMS Campaign Template Library","Company Tone of Voice Playbook","Agency Agreements & Disclosure Obligations"],
+  goal:"Draft accurate, on-brand email replies grounded in listing and knowledge data, queued for one-click agent approval — 4-hour response SLA met 24/7.",
+  intents:["Listing enquiry reply","Contract request fulfilment","Appraisal enquiry","General admin","Post-settlement follow-up"],
+  esc:["Contract requests — attach only solicitor-issued documents on file","Anything constituting legal advice — template referral to conveyancer","Sensitive vendor data requests — verify identity first"]}
+];
+const SPECIALISTS=[
+ ["Discovery Consultant","reviewing 47 discovery data points"],
+ ["Knowledge Architect","retrieving from 30 indexed documents"],
+ ["Prompt Engineer","assembling structured prompt pack"],
+ ["Voice UX Designer","tuning persona & speech patterns"],
+ ["Compliance Reviewer","checking Fair Trading & underquoting rules"],
+ ["Retell Config Builder","mapping voice, webhooks & interruption settings"],
+ ["QA Specialist","running 142-turn sandbox simulation"]
+];
+
+/* ================= NAV ================= */
+const TITLES={home:'Command <span class="grad">Deck</span>',clients:'Client <span class="grad">Dashboards</span>',clientview:'Client <span class="grad">Workspace</span>',marvian:'<span class="grad">Marvian</span> — Client Portal',build:'<span class="grad">BUILD</span> — Agent Builder',knowledge:'<span class="grad">BUILD</span> — Knowledge Centre',library:'<span class="grad">BUILD</span> — Prompt Library',test:'<span class="grad">TEST</span> — Call Simulator',qa:'<span class="grad">TEST</span> — QA Centre',optimiser:'<span class="grad">OPTIMISE</span> — Prompt Optimiser',analyse:'<span class="grad">ANALYSE</span> — Voice Analytics',output:'Generated <span class="grad">Deliverables</span>'};
+const CRUMBS={home:"Command Deck",clients:"Clients / Directory",clientview:"Clients / Demo Workspace",marvian:"Clients / Marvian — Client Portal",build:"Build / Agent Builder",knowledge:"Build / Knowledge",library:"Build / Prompt Library",test:"Test / Call Simulator",qa:"Test / QA Centre",optimiser:"Optimise / Prompt Optimiser",analyse:"Analyse / Voice Analytics",output:"Build / Output"};
+const TITLES_ZH={clients:'客户<span class="grad">仪表盘</span>',clientview:'客户<span class="grad">工作区</span>',marvian:'<span class="grad">Marvian</span> — 客户门户',home:'指挥<span class="grad">中心</span>',build:'<span class="grad">构建</span> — 智能体构建器',knowledge:'<span class="grad">构建</span> — 知识中心',library:'<span class="grad">构建</span> — 提示词库',test:'<span class="grad">测试</span> — 通话模拟器',qa:'<span class="grad">测试</span> — 质检中心',optimiser:'<span class="grad">优化</span> — 提示词优化器',analyse:'<span class="grad">分析</span> — 语音分析',output:'生成<span class="grad">交付物</span>'};
+let currentView="home";
+function nav(v){
+  currentView=v;
+  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+  document.getElementById("v-"+v).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(x=>x.classList.toggle("active",x.dataset.v===v));
+  document.getElementById("pageTitle").innerHTML=(window.zhMode?TITLES_ZH:TITLES)[v];
+  document.getElementById("crumb").textContent="VOICE AI / "+CRUMBS[v];
+  document.querySelector("main").scrollTop=0;
+  if(v==="analyse")animBars();
+}
+document.querySelectorAll(".nav-item").forEach(x=>x.onclick=()=>nav(x.dataset.v));
+let counted=false;
+function animCounts(){
+  if(counted)return;counted=true;
+  document.querySelectorAll("[data-count]").forEach(el=>{
+    const target=+el.dataset.count;let cur=0;const step=Math.max(1,Math.ceil(target/40));
+    const t=setInterval(()=>{cur=Math.min(target,cur+step);el.textContent=cur.toLocaleString();if(cur>=target)clearInterval(t)},28);
+  });
+}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg||"Copied ✓";t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2400)}
+
+/* ================= BUILD ================= */
+const wsGrid=document.getElementById("wsGrid");
+AGENTS.forEach((a,i)=>{
+  const b=document.createElement("button");b.className="ws-btn";
+  b.innerHTML=`${a.live?'<span class="live">● LIVE ON RETELL</span>':""}<span class="aicon">${icn(a.ic,21)}</span><h4>${a.n}</h4><p>${a.d}</p><div class="go">BUILD WITH CLAUDE</div>`;
+  b.onclick=()=>generate(i);wsGrid.appendChild(b);
+});
+let currentAgent=null,currentTab=0;
+function generate(i){
+  currentAgent=AGENTS[i];
+  document.getElementById("genTitle").textContent="Building "+currentAgent.n;
+  const wrap=document.getElementById("genAgents");wrap.innerHTML="";
+  SPECIALISTS.forEach(s=>{
+    const r=document.createElement("div");r.className="agent-row";
+    r.innerHTML=`<div class="st"></div><span class="who">${s[0]}</span><span class="msg">${s[1]}</span>`;
+    wrap.appendChild(r);
+  });
+  document.getElementById("genOverlay").classList.add("on");
+  const rows=[...wrap.children];const bar=document.getElementById("genBar");
+  let step=0;
+  (function next(){
+    if(step>0){rows[step-1].classList.remove("run");rows[step-1].classList.add("done");}
+    if(step<rows.length){rows[step].classList.add("run");bar.style.width=((step+1)/rows.length*100)+"%";step++;setTimeout(next,500+Math.random()*400);}
+    else{setTimeout(()=>{document.getElementById("genOverlay").classList.remove("on");showOutput();},420);}
+  })();
+}
+
+/* ================= OUTPUT BUILDERS ================= */
+function buildPrompt(a){
+  return `# SYSTEM PROMPT — ${a.n.toUpperCase()}
+# ${CLIENT} · Generated by REAVOS · en-AU
+
+## ROLE
+You are ${a.persona}, ${a.role} at ${CLIENT}. You are warm,
+assured and precise — never pushy, never robotic. You represent a premium
+Australian real estate brand and it shows in every sentence.
+
+## OBJECTIVE
+${a.goal}
+
+## BUSINESS CONTEXT
+${CLIENT} is a residential sales and property management agency.
+Brand pillars: evidence over opinion, service over pressure. All prices,
+processes and claims come from the indexed knowledge base — never memory.
+
+## KNOWLEDGE SOURCES (retrieve before every answer)
+${a.docs.map(d=>"- "+d).join("\n")}
+- Plus 26 additional indexed agency documents (auto-retrieved by relevance)
+
+## CORE INTENTS YOU HANDLE
+${a.intents.map(x=>"- "+x).join("\n")}
+
+## CONSTRAINTS
+- NEVER invent prices, fees, legislation, availability or company policy.
+- If the knowledge base cannot verify an answer, say exactly:
+  "I want to give you the right answer rather than a fast one — let me
+  have {agent_name} confirm that and come straight back to you."
+- Australian English only: en-AU spelling, natural Aussie idiom, no US terms.
+- Responses under 3 sentences unless the caller asks for detail.
+- Confirm names, numbers and addresses by reading them back.
+- Comply at all times with the Underquoting Prevention Policy and the
+  Fair Trading Compliance Manual — price language is restricted.
+
+## TONE OF VOICE
+Assured, never arrogant. Warm, never gushing. Precise, never jargon-heavy.
+Match the caller's pace. One question at a time. Smile audibly.
+
+## ESCALATION RULES (non-negotiable)
+${a.esc.map(x=>"- "+x).join("\n")}
+
+## REQUIRED OUTPUTS PER CALL
+- CRM record: caller identity, intent, qualification data, next action
+- Booked appointment OR scheduled callback with owner and deadline
+- Flag: hot / warm / nurture, with one-line reasoning
+
+## SUCCESS CRITERIA
+- Caller need resolved or correctly escalated in a single conversation
+- Zero unverified claims (audited nightly against knowledge base)
+- Follow-up action created in CRM within 60 seconds of call end
+
+## QUALITY CHECKS BEFORE EVERY RESPONSE
+1. Is this grounded in retrieved knowledge? 2. Is it compliant?
+3. Is it under 3 sentences? 4. Does it move the caller to the next step?`;
+}
+function buildPersona(a){
+  return `# VOICE PERSONA — ${a.persona.toUpperCase()}
+# ${a.role} · ${CLIENT}
+
+Name            ${a.persona}
+Role            ${a.role}
+Voice model     ${a.voice}
+Purpose         ${a.goal.split(".")[0]}.
+
+Personality     Warm-professional. Genuinely helpful, quietly confident.
+Energy          Medium — lifts slightly for good news, softens for concerns.
+Speaking speed  ~155 wpm, natural pauses after questions.
+Vocabulary      Plain English. Explains any industry term unprompted.
+Pronunciation   Australian English. "Data" = dah-ta. Suburb names verified
+                against knowledge base pronunciation guide.
+Empathy         Names emotion when heard: "That sounds stressful — let's
+                sort it out together."
+Humour          Light, situational, never scripted jokes.
+
+Greeting        "Good {time_of_day}, you've called ${CLIENT},
+                this is ${a.persona} — how can I help?"
+Closing         Confirms next step + owner + timing, then a warm sign-off.
+Interruptions   Stops immediately, acknowledges, resumes naturally.
+Escalation      Announces the handover, stays on the line until connected,
+                passes full context so the caller never repeats themselves.`;
+}
+function buildFlow(a){
+  return `# CONVERSATION FLOW — ${a.n.toUpperCase()}
+
+[1] GREET & IDENTIFY
+    → Warm greeting, capture name + best contact number early.
+    → Detect intent within two conversational turns.
+
+[2] QUALIFY
+    → ${a.intents[0]}: run structured qualification (motivation,
+      timeline, position) — one question at a time.
+    → Log every answer to CRM in real time.
+
+[3] RETRIEVE & ANSWER
+    → Search knowledge base FIRST for every factual question.
+    → Verified: answer in under 3 sentences.
+    → Unverified: use the honest-deferral line + create callback task.
+
+[4] DECISION POINT
+    → Ready to proceed → book the appointment (offer 2 specific slots).
+    → Hesitant → address top concern via Objection Handling Playbook,
+      then re-offer. Max one reframe, then schedule follow-up.
+    → Escalation trigger → warm human handover per rules.
+
+[5] CONFIRM & CLOSE
+    → Read back: name, number, appointment, next step.
+    → Send SMS confirmation immediately. Set reminder T-24h.
+
+[6] POST-CALL AUTOMATION
+    → Retell post-call webhook → CRM: contact record, intent tag,
+      hot/warm/nurture flag, full transcript + sentiment.
+    → Notify owning agent (hot leads: push notification < 5 min).
+    → Queue follow-up sequence per Client Communication Voice Matrix.`;
+}
+function buildRetell(a){
+  const cfg={
+    agent_name:`${CLIENT.toLowerCase().replace(/ /g,"_")}_${a.n.toLowerCase().replace(/ /g,"_")}`,
+    voice_id:a.voice.startsWith("11labs")?a.voice.replace(" (AU)",""):"11labs-Amelia",
+    language:"en-AU",
+    response_engine:{type:"retell-llm",llm_id:"llm_reavos_"+a.persona.toLowerCase()},
+    llm_websocket_url:"wss://api.reavos.au/llm/"+a.persona.toLowerCase(),
+    begin_message:`Good {time_of_day}, you've called ${CLIENT}, this is ${a.persona} — how can I help?`,
+    general_prompt:"<< REAVOS system prompt v2.3 — see System Prompt tab >>",
+    general_tools:[
+      {type:"book_appointment",name:"book_appraisal",calendar:"cal_pixelanxiety_sales"},
+      {type:"transfer_call",name:"warm_transfer",number:"{escalation_target}"},
+      {type:"custom",name:"crm_upsert",url:"https://api.reavos.au/webhooks/crm"}
+    ],
+    interruption_sensitivity:0.7,
+    responsiveness:0.8,
+    enable_backchannel:true,
+    backchannel_words:["mm-hmm","right","of course"],
+    reminder_trigger_ms:8000,
+    end_call_after_silence_ms:20000,
+    post_call_analysis_data:[
+      {name:"caller_intent",type:"enum",choices:a.intents},
+      {name:"lead_temperature",type:"enum",choices:["hot","warm","nurture"]},
+      {name:"appointment_booked",type:"boolean"},
+      {name:"escalated_to_human",type:"boolean"},
+      {name:"unverified_claim_detected",type:"boolean"}
+    ],
+    webhook_url:"https://api.reavos.au/webhooks/retell/post-call",
+    max_call_duration_ms:900000,
+    ambient_sound:"off",
+    boosted_keywords:["appraisal","Pixel Anxiety","auction","settlement"]
+  };
+  return "# RETELL AI AGENT CONFIG — "+a.n.toUpperCase()+"\n# POST /create-agent · Retell API v2 · validated ✓\n\n"+JSON.stringify(cfg,null,2);
+}
+function buildQAtxt(a){
+  return `# QA REPORT — ${a.n.toUpperCase()}
+# Overall score: ${a.score}/100 · ${a.score>=95?"DEPLOYMENT READY":"READY PENDING MINOR ITEMS"}
+
+Hallucination risk      PASS   0 unverified claims across 142 test turns
+Compliance              PASS   Underquoting + Fair Trading rules enforced
+Knowledge grounding     PASS   ${a.docs.length} primary sources + 26 supporting docs
+Australian English      PASS   en-AU locale locked, idiom natural
+Escalation logic        PASS   All ${a.esc.length} trigger paths verified
+Retell config           PASS   Voice, tools, webhooks, analysis schema valid
+Response latency        PASS   Median first-token 380ms (target < 500ms)
+Open items              1      Confirm after-hours escalation number
+
+Recommendation: approve for supervised pilot (2 weeks, daily call
+review), then full deployment. Loop back through OPTIMISE after any
+knowledge update or when ANALYSE flags drift.`;
+}
+const TABS=["System Prompt","Voice Persona","Conversation Flow","Retell AI Config","QA Report"];
+const BUILDERS=[buildPrompt,buildPersona,buildFlow,buildRetell,buildQAtxt];
+function showOutput(){
+  nav("output");
+  const tabs=document.getElementById("outTabs");tabs.innerHTML="";
+  TABS.forEach((t,i)=>{
+    const b=document.createElement("button");b.className="tab"+(i===0?" active":"")+(t.includes("Retell")?" retell":"");b.textContent=t;
+    b.onclick=()=>{currentTab=i;[...tabs.children].forEach((x,j)=>x.classList.toggle("active",j===i));render()};
+    tabs.appendChild(b);
+  });
+  currentTab=0;render();
+  const s=currentAgent.score;const arc=document.getElementById("scoreArc");
+  arc.style.transition="none";arc.style.strokeDashoffset=195;
+  setTimeout(()=>{arc.style.transition="stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1)";arc.style.strokeDashoffset=195-(195*s/100);},60);
+  let c=0;const t=setInterval(()=>{c=Math.min(s,c+2);document.getElementById("scoreVal").textContent=c;if(c>=s)clearInterval(t)},26);
+}
+function render(){
+  const raw=BUILDERS[currentTab](currentAgent);
+  document.getElementById("outBox").innerHTML=raw.replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/^(#.*)$/gm,'<span class="hl">$1</span>').replace(/^(## .*)$/gm,'<span class="hl">$1</span>')
+    .replace(/(&quot;|")((?:agent_name|voice_id|language|begin_message|webhook_url)")/g,'<span class="cy">$1$2</span>');
+}
+function copyOut(){navigator.clipboard.writeText(BUILDERS[currentTab](currentAgent)).then(()=>toast())}
+function deployRetell(){
+  toast("Validating config against Retell API v2…");
+  setTimeout(()=>toast(currentAgent.n+" deployed to Retell AI sandbox ✓"),1600);
+}
+
+/* ================= TEST / SIMULATOR ================= */
+const SIM={
+ 0:{turns:[
+  ["caller","Hi, yeah — just wondering what my place might be worth? We're at 14 Kestrel Street."],
+  ["anno","✓ Intent detected: appraisal request → Vendor qualification flow"],
+  ["ai","Lovely — Kestrel Street's a great pocket. I'm Olivia from Pixel Anxiety. Can I grab your name, and what's prompting the thought — considering a move, or just keeping an eye on the market?"],
+  ["caller","Sarah. We're thinking of upsizing next year, maybe sooner if the price is right."],
+  ["anno","✓ Motivation + timeline captured → CRM upsert fired (Retell tool call)"],
+  ["ai","That makes sense, Sarah. Rather than guess a number over the phone — our policy is evidence over opinion — I'll have our senior agent walk through and give you a written appraisal backed by recent sales. I have Thursday 5:30 or Saturday 10am. Which suits?"],
+  ["anno","✓ Compliance: no verbal price opinion (Underquoting Prevention Policy)"],
+  ["caller","Saturday works."],
+  ["ai","Booked — Saturday 10am at 14 Kestrel Street. I'll text confirmation now, and you'll get the comparable sales report before we arrive. Anything else I can help with?"],
+  ["anno","✓ book_appraisal tool executed → calendar + SMS confirmed"]],
+  stats:["Olivia — Seller Agent","11labs-Amelia (AU)","362ms","9 / 9","0","Appraisal booked ✓"]},
+ 1:{turns:[
+  ["caller","Hey, calling about the listing on Marine Parade — is the price guide negotiable? Like would they take 1.3?"],
+  ["anno","✓ Intent: price-guide pressure → restricted language path"],
+  ["ai","Good question — the published guide is $1.45 million, and that's set from comparable sales evidence, so I can't speak below it. What I can do is book you through Saturday's open so you can judge it against the comparables yourself. Want me to save you a spot?"],
+  ["anno","✓ Compliance: guide restated, no price speculation"],
+  ["caller","Yeah alright. Can you send me the contract too?"],
+  ["ai","Absolutely — I'll email the solicitor-issued contract now. Can I grab your best email, and have you got finance sorted or still lining that up?"],
+  ["anno","✓ Qualification continues: finance position captured"]],
+  stats:["Marcus — Buyer Agent","11labs-Charlie (AU)","341ms","6 / 6","0","Inspection booked + contract sent ✓"]},
+ 2:{turns:[
+  ["caller","Look, I've been waiting three days for someone to call me back about my settlement. This is ridiculous."],
+  ["anno","⚠ Frustration detected → empathy script engaged, 45s human handover timer started"],
+  ["ai","I'm really sorry, that's not the experience you should be having — and settlement stress is the last thing you need. I'm getting our Operations Manager on the line right now; it'll take under a minute, and I'll brief them so you won't have to repeat any of this."],
+  ["anno","✓ Escalation rule fired: urgent settlement → warm transfer, context passed"],
+  ["caller","...Okay. Thank you."],
+  ["ai","Connecting you now — and I've logged this so it's followed up today regardless. Bear with me one moment."],
+  ["anno","✓ transfer_call executed in 38s · complaint logged to CRM"]],
+  stats:["Sophie — Reception","11labs-Matilda (AU)","318ms","4 / 4","0","Escalated in 38s (target 45s) ✓"]}
+};
+let simSel=0;
+const simPick=document.getElementById("simPick");
+[["home","Seller — price expectation call",0],["key","Buyer — price pushback call",1],["headset","Reception — angry caller",2]].forEach(([ic,lbl,i])=>{
+  const c=document.createElement("button");c.className="sim-chip"+(i===0?" on":"");c.innerHTML=icn(ic,13)+lbl;
+  c.onclick=()=>{simSel=i;[...simPick.children].forEach((x,j)=>x.classList.toggle("on",j===i))};
+  simPick.appendChild(c);
+});
+let simRunning=false;
+function runSim(){
+  if(simRunning)return;simRunning=true;
+  const sim=SIM[simSel];const win=document.getElementById("callWindow");win.innerHTML="";
+  ["simAgent","simVoice","simLat","simGround","simComp","simOut"].forEach(id=>document.getElementById(id).textContent="…");
+  let i=0;
+  (function next(){
+    if(i<sim.turns.length){
+      const [kind,txt]=sim.turns[i];
+      const el=document.createElement("div");
+      if(kind==="anno"){el.className="anno";el.textContent=txt;}
+      else{el.className="bubble "+kind;el.innerHTML=`<span class="who">${kind==="ai"?"AI AGENT":"CALLER"}</span>${txt}`;}
+      win.appendChild(el);win.scrollTop=win.scrollHeight;
+      i++;setTimeout(next,kind==="anno"?600:1050);
+    }else{
+      const s=sim.stats;
+      ["simAgent","simVoice","simLat","simGround","simComp","simOut"].forEach((id,j)=>document.getElementById(id).textContent=s[j]);
+      toast("Simulation complete — all checks passed ✓");simRunning=false;
+    }
+  })();
+}
+
+/* ================= OPTIMISE ================= */
+const CRITS=["Clarity","Specificity","Context","Constraints","Knowledge grounding","Output structure","Hallucination risk","Completeness"];
+const critWrap=document.getElementById("optCrits");
+CRITS.forEach(c=>{
+  const d=document.createElement("div");d.className="crit";
+  d.innerHTML=`<div class="row"><b>${c}</b><span>—</span></div><div class="bar"><i></i></div>`;
+  critWrap.appendChild(d);
+});
+function scorePrompt(txt){
+  const len=txt.length;const has=(re)=>re.test(txt)?1:0;
+  const base={
+   "Clarity":40+Math.min(30,len/40)+has(/objective|goal/i)*15,
+   "Specificity":30+Math.min(25,len/50)+has(/\d/)*15+has(/never|must|always/i)*15,
+   "Context":30+has(/business|company|agency|client/i)*30+Math.min(20,len/60),
+   "Constraints":25+has(/never|must not|do not|only/i)*40+has(/australian|en-au/i)*15,
+   "Knowledge grounding":20+has(/knowledge|document|source|verify|reference/i)*45+has(/hallucinat/i)*15,
+   "Output structure":25+has(/output|format|structure|##|- /)*40+Math.min(15,len/80),
+   "Hallucination risk":30+has(/never invent|verify|cannot confirm|don't know/i)*45+has(/escalat/i)*10,
+   "Completeness":20+Math.min(40,len/25)+has(/success|criteria|check/i)*20
+  };
+  Object.keys(base).forEach(k=>base[k]=Math.max(12,Math.min(99,Math.round(base[k]))));
+  return base;
+}
+function runOptimiser(){
+  const txt=document.getElementById("optIn").value.trim();
+  if(!txt){toast("Paste a prompt first");return}
+  const scores=scorePrompt(txt);let total=0;
+  [...critWrap.children].forEach((row,i)=>{
+    const v=scores[CRITS[i]];total+=v;
+    setTimeout(()=>{
+      row.querySelector(".bar i").style.width=v+"%";
+      row.querySelector(".row span").textContent=v+"/100";
+      row.querySelector(".bar i").style.background=v>75?"var(--grad)":v>50?"linear-gradient(90deg,#F5B95B,#F59E0B)":"linear-gradient(90deg,#FF6B81,#EF4444)";
+    },i*130);
+  });
+  total=Math.round(total/CRITS.length);
+  setTimeout(()=>{
+    document.getElementById("optTotal").textContent=total+"/100";
+    document.getElementById("optVerdict").innerHTML=total>80
+     ?"<b style='color:var(--green)'>Production ready.</b> Strong structure and grounding. Add explicit success criteria and an escalation clause to reach 95+, then send it back through TEST before redeploying."
+     :total>55
+     ?"<b style='color:var(--gold)'>Needs work.</b> Weak knowledge grounding and constraints — the two biggest hallucination drivers. REAVOS can rewrite it, then it goes to TEST before touching production."
+     :"<b style='color:var(--red)'>High risk.</b> This prompt would guess on live calls. No role, no constraints, no verified sources. One click rebuilds it on the 14-part framework — then loop: TEST → deploy → ANALYSE.";
+  },CRITS.length*130+300);
+}
+function loadSamplePrompt(){
+  document.getElementById("optIn").value="You are a helpful assistant for a real estate company. Answer questions about our properties and be nice. If someone wants to sell their house tell them we are the best agency.";
+}
+
+/* ================= ANALYSE ================= */
+const VOL=[62,71,58,84,91,77,45,68,88,96,102,89,71,82];
+function animBars(){
+  const wrap=document.getElementById("volBars");
+  if(!wrap.children.length){
+    const lbl=document.getElementById("volLbls");
+    VOL.forEach((v,i)=>{
+      const b=document.createElement("div");b.className="b";b.style.height="0";b.innerHTML=`<em>${v}</em>`;
+      wrap.appendChild(b);
+      const s=document.createElement("span");s.textContent=(i%2===0)?("D-"+(14-i)):"";lbl.appendChild(s);
+    });
+  }
+  [...wrap.children].forEach((b,i)=>{setTimeout(()=>{b.style.height=(VOL[i]/Math.max(...VOL)*100)+"%"},i*45)});
+}
+
+/* ================= KNOWLEDGE ================= */
+const knGrid=document.getElementById("knGrid");let knCat="all";
+function renderKn(){
+  const q=(document.getElementById("knSearch").value||"").toLowerCase();
+  knGrid.innerHTML="";
+  KNOWLEDGE.filter(k=>(knCat==="all"||k[1]===knCat)&&k[0].toLowerCase().includes(q)).forEach(k=>{
+    const d=document.createElement("div");d.className="kn-doc";
+    d.innerHTML=`<div class="fic">${icn("doc",15)}</div><div><b>${k[0]}</b><small>${k[1]} · .docx · v2+</small><span class="ok">✓ INDEXED — ${(Math.random()*20+8|0)} retrieval anchors</span></div>`;
+    knGrid.appendChild(d);
+  });
+  if(!knGrid.children.length)knGrid.innerHTML='<div style="color:var(--dim2);font-size:13px;padding:20px">No documents match.</div>';
+}
+document.getElementById("knSearch").addEventListener("input",renderKn);
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");knCat=c.dataset.cat;renderKn();
+});
+renderKn();
+
+/* ================= LIBRARY ================= */
+const LIB=[
+ ["Listings","Luxury Listing Copy — Waterfront","Full REA-ready copy pack for prestige waterfront listings, style-guide compliant.",98],
+ ["Listings","Family Home Copy — School Catchment","Persona-targeted copy skeleton for family buyers, verified distances only.",96],
+ ["Sales","Appraisal Booking Call Frame","Converts 'what's it worth' calls into booked appraisals in under 4 minutes.",95],
+ ["Sales","Objection: 'Commission Too High'","AREC-structured response with evidence stack and close.",97],
+ ["Marketing","Just Sold Social Set","Caption + story + email announcement, consent rules built in.",94],
+ ["Marketing","Suburb Market Report Generator","Quarterly report generator, hallucination-guarded inputs only.",95],
+ ["Property Mgmt","Maintenance Triage Assistant","Urgency classification + legislated response windows by state.",93],
+ ["Compliance","Price Language Validator","Screens any copy against the Underquoting Prevention Policy.",99],
+ ["Voice","Reception Greeting Set","6-second greetings tested for caller retention on Retell.",96],
+ ["Voice","Empathy Repair Lines","De-escalation lines for distressed callers, PM and sales variants.",95],
+ ["Voice","Late-Night Greeting Variant","Softer after-8pm variant — from the ANALYSE queue.",91],
+ ["Training","New Agent Script Certification","Assessment prompts for onboarding weeks 3–4.",92]
+];
+const libGrid=document.getElementById("libGrid");
+LIB.forEach(l=>{
+  const c=document.createElement("div");c.className="lib-card";
+  c.innerHTML=`<span class="cat">${l[0]}</span><b>${l[1]}</b><p>${l[2]}</p><div class="meta"><span>Score ${l[3]}/100</span><span>en-AU</span><span>v2.1</span></div>`;
+  c.onclick=()=>{currentAgent={...AGENTS[4],n:l[1]};showOutput()};
+  libGrid.appendChild(c);
+});
+
+/* ================= CLIENT DASHBOARDS ================= */
+const CL_FIRST=["Sarah","Tom","Priya","Marco","Elena","Jack","Amara","Liam","Grace","Noah","Isla","Ethan","Mia","Oscar","Ruby","Henry","Zoe","Leo","Chloe","Max","Ava","Finn","Layla","Kai","Sofia","Ryan","Nina","Cole","Tara","Jude"];
+const CL_LAST=["Mitchell","Nguyen","Patel","Romano","Kovacs","Thompson","Okafor","Walsh","Chen","Brooks","Fitzgerald","Tanaka","Marsh","Delacroix","Hart","Singh","Vella","O'Connor","Laurent","Becker","Costa","Reyes","Lindqvist","Moreau","Kelly","Draper","Novak","Hughes","Abara","Sato"];
+const CL_SUBURB=["Bondi · NSW","Manly · NSW","Cronulla · NSW","Parramatta · NSW","South Yarra · VIC","Penrith · NSW","Coogee · NSW","Mosman · NSW","Balmain · NSW","Randwick · NSW","Dee Why · NSW","Sutherland · NSW","Fitzroy · VIC","Marrickville · NSW","Hornsby · NSW","Noosa · QLD","Broadbeach · QLD","Castle Hill · NSW","Miranda · NSW","Epping · NSW","Burwood · NSW","Fremantle · WA","Lane Cove · NSW","Kirrawee · NSW","Gladesville · NSW","Rozelle · NSW","Glenelg · SA","Engadine · NSW","Byron Bay · NSW","Hobart · TAS"];
+const CL_COLORS=[["#FF6EC7","#C86BFF"],["#F5B95B","#FF6B81"],["#C86BFF","#FF2DAF"],["#3DF0A8","#4DE8FF"],["#FF6B81","#F5B95B"]];
+const CL_STATUS=[["LIVE","cp-live"],["TRIAL","cp-trial"],["ONBOARDING","cp-onb"]];
+let seeded=42;function rnd(){seeded=(seeded*9301+49297)%233280;return seeded/233280}
+const CLIENTS=CL_FIRST.map((f,i)=>{
+  const name=f+" "+CL_LAST[i];
+  return {name,suburb:CL_SUBURB[i],agents:1+Math.floor(rnd()*4),calls:80+Math.floor(rnd()*900),
+    booked:5+Math.floor(rnd()*60),after:20+Math.floor(rnd()*200),sent:(3.9+rnd()).toFixed(1),
+    status:CL_STATUS[Math.floor(rnd()*3)],col:CL_COLORS[i%CL_COLORS.length]};
+});
+const clGrid=document.getElementById("clGrid");
+function renderClients(){
+  const q=(document.getElementById("clSearch").value||"").toLowerCase();
+  clGrid.innerHTML="";
+  if("marvian".includes(q)||q===""||"marvian real estate".includes(q)){
+    const m=document.createElement("div");m.className="cl-card real";
+    m.innerHTML=`<span class="cl-pill cp-live">● LIVE CLIENT</span><div class="cav">MV</div><b>Marvian</b><small>Sydney · NSW</small>`;
+    m.onclick=()=>nav("marvian");clGrid.appendChild(m);
+  }
+  CLIENTS.filter(c=>(c.name+" "+c.suburb).toLowerCase().includes(q)).forEach((c,i)=>{
+    const d=document.createElement("div");d.className="cl-card";
+    d.style.setProperty("--c1",c.col[0]);d.style.setProperty("--c2",c.col[1]);
+    d.innerHTML=`<span class="cl-pill ${c.status[1]}">${c.status[0]}</span><div class="cav">${c.name.split(" ").map(w=>w[0]).slice(0,2).join("")}</div><b>${c.name}</b><small>${c.suburb}</small>`;
+    d.onclick=()=>openClient(c);clGrid.appendChild(d);
+  });
+  if(!clGrid.children.length)clGrid.innerHTML='<div style="color:var(--dim2);font-size:13px;padding:20px">No clients match.</div>';
+}
+document.getElementById("clSearch").addEventListener("input",renderClients);
+renderClients();
+function openClient(c){
+  nav("clientview");
+  document.getElementById("cvName").textContent=c.name;
+  document.getElementById("cvDesc").textContent="Based in "+c.suburb+" · "+c.status[0].toLowerCase()+" workspace. This is a demonstration dashboard with randomised data — the live client experience is the Marvian portal.";
+  document.getElementById("cvCalls").textContent=c.calls;
+  document.getElementById("cvBooked").textContent=c.booked;
+  document.getElementById("cvAfter").textContent=c.after;
+  document.getElementById("cvSent").textContent=c.sent;
+  document.getElementById("cvAgents").textContent=c.agents;
+}
+
+/* ================= MARVIAN PORTAL ================= */
+document.getElementById("mvNote").innerHTML=icn("shield",18)+"<div><b style='color:var(--txt)'>Scoped client access.</b> Marvian sees his agent's performance, runs sandbox tests, and keeps his source of truth current — new products and policies upload here, our team is notified, and only his agent updates. The prompt engineering, optimiser and flow logic stay Pixel Anxiety IP.</div>";
+document.querySelectorAll("[data-lk]").forEach(r=>r.insertAdjacentHTML("afterbegin",icn("lock",14)));
+const MVDOCS=[["Marvian Winter Price List 2026.pdf","sc-idx","INDEXED"],["New Listing Package — Premium Plus.docx","sc-idx","INDEXED"],["Updated After-Hours Policy.pdf","sc-pend","PENDING REVIEW"]];
+const mvDocs=document.getElementById("mvDocs");
+function mvRender(){
+  mvDocs.innerHTML="";
+  MVDOCS.forEach(d=>{
+    const r=document.createElement("div");r.className="mv-item";
+    r.innerHTML=icn("doc",14)+`<span>${d[0]}</span><span class="st-chip ${d[1]}">${d[2]}</span>`;
+    mvDocs.appendChild(r);
+  });
+}
+mvRender();
+function mvAdd(){
+  const inp=document.getElementById("mvNew");const v=inp.value.trim();
+  if(!v){toast("Describe the update first");return}
+  MVDOCS.unshift([v,"sc-pend","PENDING REVIEW"]);mvRender();inp.value="";
+  toast("Submitted — Pixel Anxiety team notified for review");
+}
+function mvUpload(){
+  const names=["Marvian Spring Product Guide.pdf","Revised Commission Structure.docx","New Rental Policy 2026.pdf","Marvian Service Menu Update.pdf"];
+  MVDOCS.unshift([names[Math.floor(Math.random()*names.length)],"sc-pend","PENDING REVIEW"]);mvRender();
+  toast("Uploaded to review queue — team notified");
+}
+const MVTESTS={
+ greet:[["ai","Good afternoon, you've called Marvian, this is your AI assistant — how can I help?"],["anno","✓ Greeting: 4.1 seconds · brand name confirmed · en-AU"]],
+ enquiry:[["caller","Hi, do you handle rentals as well as sales?"],["ai","We do — Marvian manages both. Are you looking to lease a property out, or hunting for a rental yourself?"],["anno","✓ Answered from Marvian's indexed knowledge · qualifying question asked"]],
+ product:[["caller","I heard you have a new premium listing package?"],["ai","We've just launched Premium Plus — it includes twilight photography, a cinematic video tour and a dedicated campaign page. Want me to have the team send you the full inclusions?"],["anno","✓ Sourced from 'New Listing Package — Premium Plus.docx' — uploaded by Marvian, reviewed & indexed"]]
+};
+function mvTest(k){
+  const win=document.getElementById("mvWin");win.innerHTML="";
+  let i=0;const turns=MVTESTS[k];
+  (function next(){
+    if(i<turns.length){
+      const [kind,txt]=turns[i];
+      const el=document.createElement("div");
+      if(kind==="anno"){el.className="anno";el.textContent=txt;}
+      else{el.className="bubble "+kind;el.innerHTML=`<span class="who">${kind==="ai"?"YOUR AGENT":"TEST CALLER"}</span>${txt}`;}
+      win.appendChild(el);win.scrollTop=win.scrollHeight;
+      i++;setTimeout(next,kind==="anno"?600:950);
+    }
+  })();
+}
+
+/* ================= COOL TRANSITION WRAPPER ================= */
+function withWipe(fn){
+  if(document.startViewTransition){document.startViewTransition(fn);}
+  else{
+    const f=document.getElementById("flash");f.classList.add("on");
+    setTimeout(()=>{fn();f.classList.remove("on")},280);
+  }
+}
+
+/* ================= THEME TOGGLE ================= */
+const tBtn=document.getElementById("themeToggle");
+const SUN='<circle cx="12" cy="12" r="4"/><path d="M12 3.5V2M12 22v-1.5M3.5 12H2M22 12h-1.5M5.8 5.8L4.6 4.6M19.4 19.4l-1.2-1.2M18.2 5.8l1.2-1.2M4.6 19.4l1.2-1.2"/>';
+const MOON='<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/>';
+function paintTheme(){const l=document.body.classList.contains("light");tBtn.innerHTML=`<svg class="icn" style="font-size:17px" viewBox="0 0 24 24">${l?MOON:SUN}</svg><span>${l?"DARK":"LIGHT"}</span>`}
+function mangaFx(word){
+  const m=document.getElementById("manga");
+  m.querySelector(".mg-word").textContent=word;
+  m.classList.remove("go");void m.offsetWidth;m.classList.add("go");
+  document.body.classList.remove("shake");void document.body.offsetWidth;
+  document.body.classList.add("shake");
+  setTimeout(()=>document.body.classList.remove("shake"),500);
+}
+/* ambient anime particles */
+(function(){
+  const wrap=document.getElementById("anime");
+  const cols=["#FF6EC7","#C86BFF","#4DE8FF","#FF2DAF"];
+  for(let i=0;i<18;i++){
+    const p=document.createElement("i");
+    const s=2.5+Math.random()*4.5;
+    p.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;background:${cols[i%4]};box-shadow:0 0 ${6+s*2}px ${cols[i%4]};animation-duration:${9+Math.random()*11}s;animation-delay:${Math.random()*12}s;--dx:${(Math.random()*160-80)|0}px;opacity:0`;
+    wrap.appendChild(p);
+  }
+})();
+tBtn.onclick=()=>{
+  const toLight=!document.body.classList.contains("light");
+  mangaFx(toLight?"パッ!!":"ゴゴゴ!!");
+  setTimeout(()=>withWipe(()=>{
+    document.body.classList.toggle("light");paintTheme();
+    toast(document.body.classList.contains("light")?(window.zhMode?"白色玻璃模式":"White glass mode"):(window.zhMode?"霓虹暗色模式":"Neon dark mode"));
+  }),240);
+};
+paintTheme();
+
+/* ================= LANGUAGE TOGGLE (EN / 中文) ================= */
+window.zhMode=false;
+const I18N={
+ "Command Deck":"指挥中心","Agent Builder":"智能体构建器","Knowledge Centre":"知识中心","Prompt Library":"提示词库",
+ "Call Simulator":"通话模拟器","QA Centre":"质检中心","Prompt Optimiser":"提示词优化器","Voice Analytics":"语音分析",
+ "ENGINE GRID":"引擎矩阵","▮ BUILD":"▮ 构建","▮ TEST":"▮ 测试","▮ OPTIMISE":"▮ 优化","▮ ANALYSE":"▮ 分析",
+ "BUILD":"构建","TEST":"测试","OPTIMISE":"优化","ANALYSE":"分析",
+ "Create AI voice employees":"打造 AI 语音员工","Simulate before you ship":"上线前先模拟","Sharpen what's live":"持续打磨线上智能体","Learn from every call":"从每一通电话中学习",
+ "One-touch agent builds from the client's discovery data and 30-document knowledge base. Prompt pack, persona, flow and Retell config in a single pass.":"基于客户调研数据与30份知识文档，一键构建智能体：提示词包、语音人设、对话流程与 Retell 配置一次生成。",
+ "Run live call simulations against the Retell AI sandbox, watch the agent think, and gate every deployment behind a 12-point QA report.":"在 Retell AI 沙盒中实时模拟通话，观察智能体的思考过程，所有部署须通过12项质检报告。",
+ "Score any prompt against the 8-point framework, apply the AI Consultant's recommendations, and push improved versions back through TEST.":"用8项框架为任意提示词评分，采纳 AI 顾问建议，并将优化版本送回测试环节。",
+ "Live Retell AI call logs: volumes, booking conversion, sentiment and agent leaderboards. Every insight feeds the next OPTIMISE cycle.":"Retell AI 实时通话日志：通话量、预约转化、情绪分析与智能体排行，每个洞察都驱动下一轮优化。",
+ "AGENTS BUILT":"已构建智能体","SIM TURNS TODAY":"今日模拟轮次","BOOKING RATE (30D)":"预约率（30天）","LIVE CALLS (30D)":"实时通话（30天）",
+ "AI Consultant":"AI 顾问","Call Logs":"通话记录",
+ "Four functions, one continuous loop — not a pipeline. Ship an agent, watch the live calls, optimise, re-test, redeploy. Any order, as often as it takes.":"四大功能，一个持续循环 — 不是流水线。上线智能体、观察实时通话、优化、再测试、再部署。任意顺序，随时迭代。",
+ "Active Clients":"活跃客户","Agents Live on Retell":"Retell 在线智能体","Knowledge Files":"知识文件","Avg QA Score":"平均质检分","Calls Booked → Appraisal":"来电转估价预约","% Resolved Without Human":"无人工解决率","Live Calls (30d)":"实时通话（30天）","Appraisals Booked":"已预约估价","Median First Token":"首个音元中位延迟","Caller Sentiment":"来电者情绪",
+ "Loop Activity":"循环动态","Session":"会话","Why this matters":"为什么重要","Framework Score":"框架评分","Paste any prompt":"粘贴任意提示词","Agent Leaderboard":"智能体排行榜",
+ "Run Simulation":"运行模拟","Copy":"复制","Deploy to Retell AI":"部署至 Retell AI","← Build":"← 构建","Send to TEST →":"送往测试 →","Send to OPTIMISE →":"送往优化 →","Full QA Report →":"完整质检报告 →","Analyse & Score":"分析并评分","Load weak sample":"加载弱样本","Re-test after changes →":"修改后重新测试 →",
+ "Agent":"智能体","Voice":"语音","Latency (first token)":"延迟（首音元）","Grounded responses":"知识锚定回复","Compliance flags":"合规标记","Outcome":"结果",
+ "Every simulated turn is scored before an agent ever takes a real call. Fail any compliance check and deployment is blocked automatically — the loop sends it back to OPTIMISE instead.":"智能体接听真实来电前，每一轮模拟都会被评分。任何合规检查未通过，部署将被自动拦截 — 循环会将其送回优化环节。",
+ "Reusable, production-ready prompts. Click any card to open it in the output viewer.":"可复用的生产级提示词。点击任意卡片在输出查看器中打开。",
+ "ALL ENGINES ONLINE":"所有引擎在线","Welcome back,":"欢迎回来，",
+ "Four build engines. One operating system. Select where you're building today.":"四大构建引擎，一个操作系统。选择今天要构建的方向。",
+ "VOICE AI SYSTEMS":"语音 AI 系统","GAMING AI SYSTEMS":"游戏 AI 系统","MARKETING AI SYSTEMS":"营销 AI 系统","OPERATIONS AI SYSTEMS":"运营 AI 系统",
+ "REAVOS — build, test, optimise and analyse AI voice employees for Australian real estate. 3 agents live on Retell AI.":"REAVOS — 为澳洲房地产构建、测试、优化并分析 AI 语音员工。3 个智能体已在 Retell AI 上线。",
+ "Mini-game build engine — rapid prototyping of playable web games with AI-generated mechanics, art direction and levels.":"迷你游戏构建引擎 — 快速原型化可玩网页游戏，AI 生成玩法机制、美术方向与关卡。",
+ "Campaign engine — listing copy, social packs, email sequences and brand-locked creative generated at scale.":"营销引擎 — 房源文案、社媒素材包、邮件序列与品牌锁定创意的规模化生成。",
+ "Back-office engine — SOP automation, document generation, compliance monitoring and workflow orchestration.":"后台引擎 — SOP 自动化、文档生成、合规监控与工作流编排。",
+ "● LIVE — 3 AGENTS DEPLOYED":"● 已上线 — 3 个智能体","● LIVE — 8 BUILDS SHIPPED":"● 已上线 — 8 个作品","◐ STANDBY — Q3 2026":"◐ 待命 — 2026 Q3","◐ STANDBY — Q4 2026":"◐ 待命 — 2026 Q4","ENTER →":"进入 →","PREVIEW →":"预览 →",
+ "Claude engine online":"Claude 引擎在线","Retell AI connected":"Retell AI 已连接",
+ "Active workspace · 3 agents live on Retell AI":"活跃工作区 · 3 个智能体已上线 Retell AI",
+ "Call Volume — Last 14 Days":"通话量 — 近14天",
+ "SYSTEMS READY":"系统就绪","Who's":"今天","building":"谁在构建","today?":"？",
+ "Select your profile to load your workspaces":"选择你的档案以加载工作区",
+ "SUPER ADMIN":"超级管理员"
+};
+const I18N_REV=Object.fromEntries(Object.entries(I18N).map(([k,v])=>[v,k]));
+function swapAllText(dict){
+  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  let n;
+  while(n=w.nextNode()){
+    const t=n.nodeValue.trim();
+    if(t&&dict[t])n.nodeValue=n.nodeValue.replace(t,dict[t]);
+  }
+}
+const lBtn=document.getElementById("langToggle");
+lBtn.onclick=()=>{mangaFx(window.zhMode?"EN!!":"中文!!");setTimeout(()=>doLang(),240)};
+function doLang(){withWipe(()=>{
+  window.zhMode=!window.zhMode;
+  swapAllText(window.zhMode?I18N:I18N_REV);
+  lBtn.textContent=window.zhMode?"EN":"中文";
+  document.getElementById("pageTitle").innerHTML=(window.zhMode?TITLES_ZH:TITLES)[currentView];
+  document.getElementById("knSearch").placeholder=window.zhMode?"搜索 30 份已索引文档…":"Search 30 indexed documents…";
+  document.getElementById("optIn").placeholder=window.zhMode?"在此粘贴提示词，REAVOS 将按8项框架评分并重写至生产标准…":"Paste a prompt here and REAVOS will score it against the 8-point framework, then rewrite it to production standard…";
+  toast(window.zhMode?"已切换至中文":"Switched to English");
+});}
+</script>
+</body>
+</html>
