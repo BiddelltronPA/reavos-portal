@@ -493,7 +493,7 @@ body.light .card,body.light .metric,body.light .ws-btn,body.light .kn-doc,body.l
 #anime{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
 #anime i{position:absolute;bottom:-12px;border-radius:50%;filter:blur(.6px);animation:floatup linear infinite}
 @keyframes floatup{0%{transform:translateY(0) translateX(0);opacity:0}8%{opacity:.6}90%{opacity:.35}100%{transform:translateY(-108vh) translateX(var(--dx,20px));opacity:0}}
-body.shake #app,body.shake #grid,body.shake #users{animation:shakefx .45s ease}
+body.shake main,body.shake #grid,body.shake #users{animation:shakefx .45s ease}
 @keyframes shakefx{0%,100%{transform:none}18%{transform:translate(-8px,5px) rotate(-.35deg)}38%{transform:translate(7px,-5px) rotate(.3deg)}58%{transform:translate(-5px,3px)}78%{transform:translate(3px,-2px)}}
 
 /* ============ MANGA FX — GLASS & ON-BRAND ============ */
@@ -560,12 +560,140 @@ body.light .logo-mark,body.light .boot-mark{box-shadow:0 0 26px rgba(214,24,127,
 body.light .hub .fn{filter:saturate(.85) brightness(.75)}
 body.light .nl-build{color:#C0126F}body.light .nl-test{color:#0B7FB0}body.light .nl-opt{color:#8B3DD6}body.light .nl-ana{color:#A66E0E}
 body.light .delta{color:#0E9A6C}
+
+/* ============ MOBILE ============ */
+#menuBtn{display:none;position:fixed;top:14px;left:14px;z-index:170;width:44px;height:44px;border-radius:14px;border:1px solid var(--line2);background:var(--panel);backdrop-filter:var(--glass);color:var(--txt);cursor:pointer;align-items:center;justify-content:center;box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+#navBack{position:fixed;inset:0;background:rgba(2,3,8,.55);backdrop-filter:blur(8px);z-index:155;opacity:0;visibility:hidden;transition:.35s}
+#navBack.on{opacity:1;visibility:visible}
+@media(max-width:700px){
+  #menuBtn{display:flex}
+  aside{position:fixed;top:0;bottom:0;left:0;width:272px;min-width:272px;z-index:160;transform:translateX(-110%);transition:transform .45s cubic-bezier(.22,1,.36,1);background:rgba(8,9,20,.96);will-change:transform}
+  body.light aside{background:rgba(250,248,255,.97)}
+  aside.open{transform:translateX(0);box-shadow:30px 0 90px rgba(0,0,0,.65)}
+  .logo b,.logo span,.back-grid span{display:inline !important}
+  .nav-item .txt{display:inline !important}
+  .nav-label,.side-foot{display:block !important}
+  main{padding:68px 16px 130px}
+  .topbar{margin-bottom:14px;gap:10px}
+  h1.page{font-size:20px}
+  .crumb{font-size:9.5px}
+  .client-chip{display:none}
+  .metrics{grid-template-columns:repeat(2,1fr);gap:9px}
+  .metric{padding:12px 14px}
+  .metric .num{font-size:20px}
+  .deck,.ws-grid,.engines,.grid2,.opt-grid,.sim-grid,.ana-grid,.mv-grid,.kn-grid,.lib-grid,.cl-grid{grid-template-columns:1fr}
+  .hub-in{padding:22px 20px}
+  .hub h2{font-size:18px}
+  .hub .stat{top:18px;right:18px}
+  .hub .stat b{font-size:16px}
+  #grid,#users{align-items:flex-start;overflow-y:auto}
+  .grid-in{padding:44px 18px 60px}
+  .users-in{padding:54px 18px 60px;width:100%}
+  .grid-head{margin-bottom:26px}
+  .grid-head h1,.users-in h1{font-size:24px}
+  .engine-in{min-height:0;padding:22px 20px}
+  .user-row{gap:18px}
+  .user-card{flex:0 0 40%}
+  .user-card .uav{width:68px;height:68px;font-size:26px;border-radius:20px;margin-bottom:10px}
+  .users-in p{margin-bottom:28px}
+  .client-link{margin-top:30px}
+  .boot-word{font-size:21px}
+  .boot-in{padding:0 22px}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+  .tab{white-space:nowrap;flex-shrink:0}
+  .out-head{flex-direction:column;align-items:flex-start}
+  .prompt-box{font-size:10.5px;padding:15px 16px;max-height:46vh}
+  .call-window{min-height:280px}
+  .bubble{max-width:88%}
+  .lead{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  .kn-tools{gap:7px}
+  .chip{padding:6px 11px;font-size:10.5px}
+  #dock{bottom:12px;right:10px;padding:5px;gap:4px;border-radius:16px}
+  #dock button{padding:9px 11px;font-size:10.5px}
+  #userBtn{width:36px;height:36px}
+  .mg-word{font-size:34px}
+  .cli-in{padding:28px 22px}
+  .mv-input{flex-direction:column}
+  textarea{min-height:190px}
+  .side-foot{padding-bottom:24px}
+}
+
+/* ============ SMOOTH / NEXT-GEN PASS ============ */
+main{scroll-behavior:smooth}
+#cursorGlow{position:fixed;width:560px;height:560px;border-radius:50%;pointer-events:none;z-index:3;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(255,45,175,.08),rgba(200,107,255,.04) 45%,transparent 65%);opacity:0;transition:opacity .5s}
+body.glow-on #cursorGlow{opacity:1}
+body.light #cursorGlow{background:radial-gradient(circle,rgba(214,24,127,.07),rgba(124,58,237,.04) 45%,transparent 65%)}
+.copy-btn:active,.cyan-btn:active,.ghost-btn:active,.ws-btn:active,.sim-chip:active,.chip:active,.tab:active,#dock button:active{transform:scale(.96) !important;transition:transform .08s !important}
+.view.active>*{animation:riseIn .6s cubic-bezier(.22,1,.36,1) backwards}
+.view.active>*:nth-child(1){animation-delay:.02s}.view.active>*:nth-child(2){animation-delay:.08s}
+.view.active>*:nth-child(3){animation-delay:.14s}.view.active>*:nth-child(4){animation-delay:.2s}
+.view.active>*:nth-child(5){animation-delay:.26s}.view.active>*:nth-child(6){animation-delay:.32s}
+@keyframes riseIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.topbar{position:sticky;top:0;z-index:20;padding:12px 0 10px;margin-top:-12px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);background:linear-gradient(180deg,rgba(4,5,12,.82) 60%,transparent)}
+body.light .topbar{background:linear-gradient(180deg,rgba(248,246,255,.85) 60%,transparent)}
+.hub,.engine,.ws-btn,.user-card{transform-style:preserve-3d}
+@media(max-width:700px){#cursorGlow{display:none}.topbar{position:static;background:none;backdrop-filter:none;-webkit-backdrop-filter:none}}
+
+/* ============ RESTRAINED PALETTE — premium, pulled back ============ */
+:root{
+  --pink:#D6459A; --pink2:#DE7BB8; --violet:#9C6BD9; --cyan:#56B9CF; --gold:#CBA35C; --green:#4BCC9C;
+  --grad:linear-gradient(135deg,#D6459A,#A85FC9 60%,#8468D9);
+  --line:rgba(222,123,184,.09); --line2:rgba(222,123,184,.2);
+}
+body::before{background:
+  radial-gradient(1100px 600px at 85% -12%,rgba(214,69,154,.08),transparent 60%),
+  radial-gradient(900px 600px at -10% 112%,rgba(156,107,217,.07),transparent 60%),
+  radial-gradient(700px 450px at 50% 120%,rgba(86,185,207,.04),transparent 60%)}
+body::after{opacity:.2}
+#aurora{opacity:.28}
+#anime{opacity:.5}
+#cursorGlow{background:radial-gradient(circle,rgba(214,69,154,.05),rgba(156,107,217,.025) 45%,transparent 65%)}
+.logo-mark,.boot-mark{box-shadow:0 0 20px rgba(214,69,154,.3)}
+@keyframes breathe{50%{box-shadow:0 0 30px rgba(214,69,154,.45)}}
+@keyframes bootpulse{50%{box-shadow:0 0 46px rgba(214,69,154,.5);transform:scale(1.03)}}
+.hub-build{--hub-c:#C9459A}.hub-test{--hub-c:#4FAEC4}.hub-opt{--hub-c:#9268C9}.hub-ana{--hub-c:#B8944F}
+.e-voice{--ec:#C9459A}.e-game{--ec:#4FAEC4}.e-mkt{--ec:#9268C9}.e-ops{--ec:#B8944F}
+.u-helen{--uc:#C9459A}.u-brendan{--uc:#4FAEC4}.u-david{--uc:#9268C9}.u-lex{--uc:#B8944F}
+.u-helen .uav{background:linear-gradient(135deg,#C9459A,#DE7BB8)}
+.u-brendan .uav{background:linear-gradient(135deg,#4FAEC4,#6BC4D6)}
+.u-david .uav{background:linear-gradient(135deg,#9268C9,#AC85DE)}
+.u-lex .uav{background:linear-gradient(135deg,#B8944F,#CBA35C)}
+.ws-btn:hover{box-shadow:0 14px 36px -16px rgba(214,69,154,.3)}
+.metric:hover,.card:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 16px 44px -22px rgba(214,69,154,.2)}
+#dock{box-shadow:0 12px 36px -16px rgba(214,69,154,.3)}
+#manga .mg-word{text-shadow:0 0 18px rgba(214,69,154,.6),0 0 46px rgba(156,107,217,.4),0 2px 0 rgba(0,0,0,.2)}
+#manga .mg-burst{filter:drop-shadow(0 0 24px rgba(214,69,154,.45)) drop-shadow(0 0 56px rgba(156,107,217,.3))}
+#manga .mg-lines{background:repeating-conic-gradient(from 0deg,rgba(214,69,154,.4) 0deg 1.4deg,transparent 1.4deg 6.2deg)}
+#manga .mg-flash{background:linear-gradient(135deg,rgba(214,69,154,.5),rgba(156,107,217,.5))}
+.copy-btn:hover{box-shadow:0 8px 22px -8px rgba(214,69,154,.5)}
+.cyan-btn{background:linear-gradient(135deg,#56B9CF,#3E9DBF)}
+.cl-card.real{box-shadow:0 0 26px -12px rgba(86,185,207,.45)}
+.bars .b{background:linear-gradient(180deg,#C9459A,rgba(201,69,154,.1))}
+body.light{--grad:linear-gradient(135deg,#BE2F82,#7C55C4);--pink2:#BE2F82;--line2:rgba(190,47,130,.24)}
+body.light #aurora{opacity:.3}
+/* ============ MOBILE MENU + iOS GLASS FIXES ============ */
+aside,.card,.metric,.ws-btn,.kn-doc,.lib-card,.cl-card,.client-chip,.gen-box,.engine-in,.hub-in,.cli-in,.prompt-box,.call-window,.mv-win,textarea,.kn-search,#dock,#menuBtn,.toast,#grid,#users,#clientLogin,#manga,#genOverlay,#navBack,.mg-burst{-webkit-backdrop-filter:blur(18px) saturate(1.4)}
+@media(max-width:700px){
+  aside{overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:max(22px,env(safe-area-inset-top))}
+  aside::-webkit-scrollbar{display:none}
+  .nav-item{padding:12px 12px;font-size:14px}
+  #menuBtn{top:max(14px,env(safe-area-inset-top))}
+  main{padding-top:calc(68px + env(safe-area-inset-top))}
+  #dock{bottom:max(12px,env(safe-area-inset-bottom))}
+  /* lighter blur on mobile for performance */
+  :root{--glass:blur(14px) saturate(1.4)}
+  body::after{display:none}
+  #aurora{filter:blur(70px)}
+}
 </style>
 </head>
 <body>
 
 <div id="aurora"><i></i><i></i><i></i></div>
+<div id="cursorGlow"></div>
 <div id="flash"></div>
+<div id="navBack" onclick="closeDrawer()"></div>
+<button id="menuBtn" onclick="toggleDrawer()"><svg class="icn" style="font-size:19px" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 <div id="anime"></div>
 <div id="manga"><div class="mg-lines"></div><div class="mg-dots"></div><div class="mg-flash"></div><div class="mg-burst"><span class="mg-word">パッ!!</span></div></div>
 <div id="dock">
@@ -585,6 +713,7 @@ body.light .delta{color:#0E9A6C}
     <div class="boot-log" id="bootLog"></div>
     <div class="boot-bar"><i id="bootBar"></i></div>
     <div class="boot-pct" id="bootPct">0%</div>
+    <div class="boot-pct" style="margin-top:6px;color:#FF6EC7">BUILD 1.5.1-R</div>
   </div>
 </div>
 
@@ -597,7 +726,7 @@ body.light .delta{color:#0E9A6C}
     <div class="user-row">
       <div class="user-card u-helen" onclick="pickUser('Helen')"><div class="uav">H</div><b>Helen</b><small>SUPER ADMIN</small></div>
       <div class="user-card u-brendan" onclick="pickUser('Brendan')"><div class="uav">B</div><b>Brendan</b><small>SUPER ADMIN</small></div>
-      <div class="user-card u-david" onclick="pickUser('David')"><div class="uav">D</div><b>David</b><small>SUPER ADMIN</small></div>
+      <div class="user-card u-david" onclick="pickUser('Saxon')"><div class="uav">S</div><b>Saxon</b><small>SUPER ADMIN</small></div>
       <div class="user-card u-lex" onclick="pickUser('Lex')"><div class="uav">L</div><b>Lex</b><small>SUPER ADMIN</small></div>
     </div>
     <div class="client-link" onclick="document.getElementById('clientLogin').classList.add('on')">Client? Sign in to your portal →</div>
@@ -846,8 +975,48 @@ body.light .delta{color:#0E9A6C}
     </div>
   </section>
 
+  <!-- AGENT DASHBOARD -->
+  <section class="view" id="v-agentdash">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:-4px 0 18px">
+      <div id="adIcon" style="width:52px;height:52px;border-radius:15px;background:rgba(255,45,175,.1);border:1px solid rgba(255,45,175,.3);display:flex;align-items:center;justify-content:center;color:var(--pink2)"></div>
+      <div style="flex:1;min-width:200px">
+        <h3 style="font-size:17px;font-weight:800" id="adName">Agent</h3>
+        <div style="font-size:11.5px;color:var(--dim)" id="adMeta">—</div>
+      </div>
+      <span class="tag cy" id="adStatus">LIVE ON RETELL</span>
+      <button class="ghost-btn" onclick="nav('analyse')">← Analytics</button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="num" id="adCalls">0</div><div class="lbl">Calls (30d)</div></div>
+      <div class="metric"><div class="num" id="adBooked">0</div><div class="lbl">Outcomes Booked</div></div>
+      <div class="metric"><div class="num" id="adConv">0%</div><div class="lbl">Conversion</div></div>
+      <div class="metric"><div class="num" id="adSent">0</div><div class="lbl">Sentiment /5</div></div>
+      <div class="metric"><div class="num" id="adLat">0<span style="font-size:13px;color:var(--dim)">ms</span></div><div class="lbl">Median First Token</div></div>
+    </div>
+    <div class="ana-grid">
+      <div class="card">
+        <h3>Call Volume — 14 Days <span class="tag cy">RETELL LOGS</span></h3>
+        <div><div class="bars" id="adBars"></div></div>
+      </div>
+      <div class="card">
+        <h3>Top Intents</h3>
+        <div id="adIntents"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Recent Calls</h3>
+      <table class="lead" id="adRecent"></table>
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <button class="cyan-btn" onclick="nav('test')">Test in Simulator</button>
+        <button class="ghost-btn" onclick="generate(window.adIdx)">Rebuild / View Config</button>
+        <button class="ghost-btn" onclick="nav('optimiser')">Send to OPTIMISE →</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ANALYSE -->
   <section class="view" id="v-analyse">
+    <div class="sim-pick" id="adPick" style="margin:-4px 0 16px"></div>
     <div class="metrics">
       <div class="metric"><div class="num" data-count="1284">0</div><div class="lbl">Live Calls (30d)</div><div class="delta">▲ 18% vs prior</div></div>
       <div class="metric"><div class="num" data-count="87">0</div><div class="lbl">Appraisals Booked</div><div class="delta">▲ 11% after optimise loop</div></div>
@@ -884,9 +1053,9 @@ body.light .delta{color:#0E9A6C}
       <h3>Agent Leaderboard <span class="tag cy">LIVE ON RETELL AI</span></h3>
       <table class="lead">
         <tr><th>AGENT</th><th>CALLS (30D)</th><th>BOOKED</th><th>CONVERSION</th><th>SENTIMENT</th><th>TREND</th></tr>
-        <tr><td><b>Olivia</b> — Seller Agent</td><td>412</td><td>87 appraisals</td><td><span class="mini-bar"><i style="width:78%"></i></span> 21.1%</td><td>4.7</td><td class="up">▲ +11%</td></tr>
-        <tr><td><b>Marcus</b> — Buyer Agent</td><td>531</td><td>203 inspections</td><td><span class="mini-bar"><i style="width:88%"></i></span> 38.2%</td><td>4.6</td><td class="up">▲ +6%</td></tr>
-        <tr><td><b>Sophie</b> — Reception</td><td>341</td><td>96% routed &lt; 30s</td><td><span class="mini-bar"><i style="width:96%"></i></span> 96.0%</td><td>4.5</td><td class="up">▲ +2%</td></tr>
+        <tr style="cursor:pointer" onclick="openAgentDash(0)"><td><b>Olivia</b> — Seller Agent</td><td>412</td><td>87 appraisals</td><td><span class="mini-bar"><i style="width:78%"></i></span> 21.1%</td><td>4.7</td><td class="up">▲ +11%</td></tr>
+        <tr style="cursor:pointer" onclick="openAgentDash(1)"><td><b>Marcus</b> — Buyer Agent</td><td>531</td><td>203 inspections</td><td><span class="mini-bar"><i style="width:88%"></i></span> 38.2%</td><td>4.6</td><td class="up">▲ +6%</td></tr>
+        <tr style="cursor:pointer" onclick="openAgentDash(2)"><td><b>Sophie</b> — Reception</td><td>341</td><td>96% routed &lt; 30s</td><td><span class="mini-bar"><i style="width:96%"></i></span> 96.0%</td><td>4.5</td><td class="up">▲ +2%</td></tr>
       </table>
       <p style="font-size:11.5px;color:var(--dim);margin-top:12px">Numbers stream from Retell AI call logs and post-call analysis webhooks. Click any agent (full version) to replay calls with transcripts.</p>
     </div>
@@ -1193,9 +1362,9 @@ const SPECIALISTS=[
 ];
 
 /* ================= NAV ================= */
-const TITLES={home:'Command <span class="grad">Deck</span>',clients:'Client <span class="grad">Dashboards</span>',clientview:'Client <span class="grad">Workspace</span>',marvian:'<span class="grad">Marvian</span> — Client Portal',build:'<span class="grad">BUILD</span> — Agent Builder',knowledge:'<span class="grad">BUILD</span> — Knowledge Centre',library:'<span class="grad">BUILD</span> — Prompt Library',test:'<span class="grad">TEST</span> — Call Simulator',qa:'<span class="grad">TEST</span> — QA Centre',optimiser:'<span class="grad">OPTIMISE</span> — Prompt Optimiser',analyse:'<span class="grad">ANALYSE</span> — Voice Analytics',output:'Generated <span class="grad">Deliverables</span>'};
-const CRUMBS={home:"Command Deck",clients:"Clients / Directory",clientview:"Clients / Demo Workspace",marvian:"Clients / Marvian — Client Portal",build:"Build / Agent Builder",knowledge:"Build / Knowledge",library:"Build / Prompt Library",test:"Test / Call Simulator",qa:"Test / QA Centre",optimiser:"Optimise / Prompt Optimiser",analyse:"Analyse / Voice Analytics",output:"Build / Output"};
-const TITLES_ZH={clients:'客户<span class="grad">仪表盘</span>',clientview:'客户<span class="grad">工作区</span>',marvian:'<span class="grad">Marvian</span> — 客户门户',home:'指挥<span class="grad">中心</span>',build:'<span class="grad">构建</span> — 智能体构建器',knowledge:'<span class="grad">构建</span> — 知识中心',library:'<span class="grad">构建</span> — 提示词库',test:'<span class="grad">测试</span> — 通话模拟器',qa:'<span class="grad">测试</span> — 质检中心',optimiser:'<span class="grad">优化</span> — 提示词优化器',analyse:'<span class="grad">分析</span> — 语音分析',output:'生成<span class="grad">交付物</span>'};
+const TITLES={agentdash:'Agent <span class="grad">Dashboard</span>',home:'Command <span class="grad">Deck</span>',clients:'Client <span class="grad">Dashboards</span>',clientview:'Client <span class="grad">Workspace</span>',marvian:'<span class="grad">Marvian</span> — Client Portal',build:'<span class="grad">BUILD</span> — Agent Builder',knowledge:'<span class="grad">BUILD</span> — Knowledge Centre',library:'<span class="grad">BUILD</span> — Prompt Library',test:'<span class="grad">TEST</span> — Call Simulator',qa:'<span class="grad">TEST</span> — QA Centre',optimiser:'<span class="grad">OPTIMISE</span> — Prompt Optimiser',analyse:'<span class="grad">ANALYSE</span> — Voice Analytics',output:'Generated <span class="grad">Deliverables</span>'};
+const CRUMBS={agentdash:"Analyse / Agent Dashboard",home:"Command Deck",clients:"Clients / Directory",clientview:"Clients / Demo Workspace",marvian:"Clients / Marvian — Client Portal",build:"Build / Agent Builder",knowledge:"Build / Knowledge",library:"Build / Prompt Library",test:"Test / Call Simulator",qa:"Test / QA Centre",optimiser:"Optimise / Prompt Optimiser",analyse:"Analyse / Voice Analytics",output:"Build / Output"};
+const TITLES_ZH={agentdash:'智能体<span class="grad">仪表盘</span>',clients:'客户<span class="grad">仪表盘</span>',clientview:'客户<span class="grad">工作区</span>',marvian:'<span class="grad">Marvian</span> — 客户门户',home:'指挥<span class="grad">中心</span>',build:'<span class="grad">构建</span> — 智能体构建器',knowledge:'<span class="grad">构建</span> — 知识中心',library:'<span class="grad">构建</span> — 提示词库',test:'<span class="grad">测试</span> — 通话模拟器',qa:'<span class="grad">测试</span> — 质检中心',optimiser:'<span class="grad">优化</span> — 提示词优化器',analyse:'<span class="grad">分析</span> — 语音分析',output:'生成<span class="grad">交付物</span>'};
 let currentView="home";
 function nav(v){
   currentView=v;
@@ -1206,6 +1375,15 @@ function nav(v){
   document.getElementById("crumb").textContent="VOICE AI / "+CRUMBS[v];
   document.querySelector("main").scrollTop=0;
   if(v==="analyse")animBars();
+  closeDrawer();
+}
+function toggleDrawer(){
+  const a=document.querySelector("aside"),b=document.getElementById("navBack");
+  a.classList.toggle("open");b.classList.toggle("on",a.classList.contains("open"));
+}
+function closeDrawer(){
+  document.querySelector("aside").classList.remove("open");
+  document.getElementById("navBack").classList.remove("on");
 }
 document.querySelectorAll(".nav-item").forEach(x=>x.onclick=()=>nav(x.dataset.v));
 let counted=false;
@@ -1566,6 +1744,48 @@ function animBars(){
   [...wrap.children].forEach((b,i)=>{setTimeout(()=>{b.style.height=(VOL[i]/Math.max(...VOL)*100)+"%"},i*45)});
 }
 
+/* ================= AGENT DASHBOARDS ================= */
+const AD_CALLERS=["S. Whitmore","J. Larsen","P. Anand","M. Bianchi","T. Osei","K. Delaney","R. Huang","A. Foster","L. Moretti","D. Kaur"];
+const AD_OUT=["Booked ✓","Booked ✓","Callback set","Escalated → human","Info provided","Booked ✓","Follow-up queued"];
+const adPick=document.getElementById("adPick");
+const adLbl=document.createElement("span");adLbl.style.cssText="font-size:11px;color:var(--dim2);align-self:center;letter-spacing:.1em;font-weight:700";adLbl.textContent="AGENT DASHBOARDS:";adPick.appendChild(adLbl);
+AGENTS.forEach((a,i)=>{
+  const c=document.createElement("button");c.className="sim-chip";c.innerHTML=icn(a.ic,13)+a.persona;
+  c.onclick=()=>openAgentDash(i);adPick.appendChild(c);
+});
+function seedFor(i){let s=1000+i*77;return()=>{s=(s*9301+49297)%233280;return s/233280}}
+function openAgentDash(i){
+  window.adIdx=i;const a=AGENTS[i];const r=seedFor(i);
+  nav("agentdash");
+  document.getElementById("adIcon").innerHTML=icn(a.ic,24);
+  document.getElementById("adName").textContent=a.persona+" — "+a.n;
+  document.getElementById("adMeta").textContent=a.role+" · "+a.voice+" · QA "+a.score+"/100";
+  document.getElementById("adStatus").textContent=a.live?"● LIVE ON RETELL":"◐ STAGED — SANDBOX ONLY";
+  const calls=a.live?300+Math.floor(r()*300):40+Math.floor(r()*80);
+  const conv=(12+r()*30).toFixed(1);
+  document.getElementById("adCalls").textContent=calls;
+  document.getElementById("adBooked").textContent=Math.floor(calls*conv/100);
+  document.getElementById("adConv").textContent=conv+"%";
+  document.getElementById("adSent").textContent=(4.2+r()*0.6).toFixed(1);
+  document.getElementById("adLat").innerHTML=(310+Math.floor(r()*120))+'<span style="font-size:13px;color:var(--dim)">ms</span>';
+  const bars=document.getElementById("adBars");bars.innerHTML="";
+  const vols=[...Array(14)].map(()=>Math.floor(calls/20+r()*calls/12));
+  vols.forEach((v,j)=>{const b=document.createElement("div");b.className="b";b.style.height="0";b.innerHTML=`<em>${v}</em>`;bars.appendChild(b);setTimeout(()=>{b.style.height=(v/Math.max(...vols)*100)+"%"},j*45+200)});
+  const iw=document.getElementById("adIntents");iw.innerHTML="";
+  a.intents.slice(0,5).forEach((it,j)=>{
+    const pct=Math.floor(38-j*7+r()*6);
+    const d=document.createElement("div");d.className="crit";
+    d.innerHTML=`<div class="row"><b>${it}</b><span>${pct}%</span></div><div class="bar"><i style="width:0"></i></div>`;
+    iw.appendChild(d);setTimeout(()=>{d.querySelector("i").style.width=pct+"%"},j*120+300);
+  });
+  const t=document.getElementById("adRecent");
+  let rows='<tr><th>TIME</th><th>CALLER</th><th>INTENT</th><th>OUTCOME</th><th>SENTIMENT</th></tr>';
+  for(let k=0;k<5;k++){
+    rows+=`<tr><td>${["9:42 am","10:15 am","11:03 am","1:27 pm","3:50 pm"][k]}</td><td>${AD_CALLERS[Math.floor(r()*10)]}</td><td>${a.intents[Math.floor(r()*a.intents.length)]}</td><td>${AD_OUT[Math.floor(r()*AD_OUT.length)]}</td><td>${(3.8+r()*1.2).toFixed(1)}</td></tr>`;
+  }
+  t.innerHTML=rows;
+}
+
 /* ================= KNOWLEDGE ================= */
 const knGrid=document.getElementById("knGrid");let knCat="all";
 function renderKn(){
@@ -1703,6 +1923,30 @@ function withWipe(fn){
     setTimeout(()=>{fn();f.classList.remove("on")},280);
   }
 }
+
+/* ================= SMOOTH: CURSOR GLOW + 3D TILT ================= */
+(function(){
+  if(!window.matchMedia("(pointer:fine)").matches)return;
+  const g=document.getElementById("cursorGlow");let raf=null;
+  window.addEventListener("pointermove",e=>{
+    document.body.classList.add("glow-on");
+    if(raf)return;
+    raf=requestAnimationFrame(()=>{g.style.left=e.clientX+"px";g.style.top=e.clientY+"px";raf=null;});
+  },{passive:true});
+  function addTilt(sel,max){
+    document.querySelectorAll(sel).forEach(el=>{
+      el.addEventListener("pointermove",e=>{
+        const r=el.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+        el.style.transform=`translateY(-4px) perspective(900px) rotateY(${(x*max).toFixed(2)}deg) rotateX(${(-y*max).toFixed(2)}deg)`;
+      },{passive:true});
+      el.addEventListener("pointerleave",()=>{el.style.transform=""});
+    });
+  }
+  window.addTilt=addTilt;
+  addTilt(".hub",3.5);addTilt(".engine",5);addTilt(".user-card",8);
+  setTimeout(()=>addTilt(".ws-btn",5),300);
+})();
 
 /* ================= THEME TOGGLE ================= */
 const tBtn=document.getElementById("themeToggle");
